@@ -1,0 +1,46 @@
+{
+  "name": "pify",
+  "version": "0.0.0",
+  "description": "Promisify a callback-style function",
+  "license": "MIT",
+  "repository": "sindresorhus/pify",
+  "author": {
+    "name": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com"
+  },
+  "engines": {
+    "node": ">=0.12.0"
+  },
+  "scripts": {
+    "test": "xo && ava"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "promise",
+    "promises",
+    "promisify",
+    "denodify",
+    "denodeify",
+    "callback",
+    "cb",
+    "node",
+    "then",
+    "thenify",
+    "convert",
+    "transform",
+    "wrap",
+    "wrapper",
+    "bind",
+    "to",
+    "async",
+    "es2015"
+  ],
+  "devDependencies": {
+    "ava": "*",
+    "pinkie-promise": "^1.0.0",
+    "xo": "*"
+  }
+}
