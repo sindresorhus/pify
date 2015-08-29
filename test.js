@@ -53,3 +53,23 @@ test('wrap core method', function (t) {
 		t.is(JSON.parse(data).name, 'pify');
 	});
 });
+
+test('module support', function (t) {
+	return fn.all(fs).readFile('package.json').then(function (data) {
+		t.is(JSON.parse(data).name, 'pify');
+	});
+});
+
+test('module support preserves non-function members', function (t) {
+	t.plan(1);
+
+	var module = {
+		method: function () {},
+		nonMethod: 3
+	};
+
+	var expectedKeys = Object.keys(module);
+	var actualKeys = Object.keys(fn.all(module));
+
+	t.same(expectedKeys, actualKeys);
+});

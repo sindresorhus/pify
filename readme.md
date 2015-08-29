@@ -20,6 +20,14 @@ pify(fs.readFile)('package.json', 'utf8').then(function (data) {
 	console.log(JSON.parse(data).name);
 	//=> 'pify'
 });
+
+// Wrap entirel modules
+var promiseFs = pify.all(fs);
+
+promiseFs.readFile('package.json', 'utf8').then(function (data) {
+	console.log(JSON.parse(data).name);
+	//=> 'pify'
+});
 ```
 
 
@@ -36,6 +44,16 @@ If the callback of the supplied function gets more than two arguments the result
 Type: `function`
 
 Callback-style function.
+
+### pify.all(module, [promiseModule])
+
+Returns a promise wrapped version of the module.
+
+#### module
+
+Type: `object`
+
+A module whose methods you want to transform into promises.
 
 #### promiseModule
 
