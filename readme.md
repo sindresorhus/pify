@@ -20,6 +20,14 @@ pify(fs.readFile)('package.json', 'utf8').then(function (data) {
 	console.log(JSON.parse(data).name);
 	//=> 'pify'
 });
+
+// promisify all methods in a module
+var promiseFs = pify.all(fs);
+
+promiseFs.readFile('package.json', 'utf8').then(function (data) {
+	console.log(JSON.parse(data).name);
+	//=> 'pify'
+});
 ```
 
 
@@ -36,6 +44,16 @@ If the callback of the supplied function gets more than two arguments the result
 Type: `function`
 
 Callback-style function.
+
+### pify.all(module, [promiseModule])
+
+Returns a version of the module with all its methods promisified.
+
+#### module
+
+Type: `object`
+
+Module whose methods you want to promisify.
 
 #### promiseModule
 
