@@ -1,8 +1,5 @@
 'use strict';
-
-function isFn(fn) {
-	return ({}).toString.call(fn) === '[object Function]';
-}
+var isFn = require('is-fn');
 
 var pify = module.exports = function (fn, P) {
 	P = P || Promise;

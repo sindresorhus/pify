@@ -38,6 +38,9 @@
     "async",
     "es2015"
   ],
+  "dependencies": {
+    "is-fn": "^1.0.0"
+  },
   "devDependencies": {
     "ava": "*",
     "pinkie-promise": "^1.0.0",
