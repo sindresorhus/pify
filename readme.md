@@ -13,18 +13,18 @@ $ npm install --save pify
 ## Usage
 
 ```js
-var fs = require('fs');
-var pify = require('pify');
+const fs = require('fs');
+const pify = require('pify');
 
-pify(fs.readFile)('package.json', 'utf8').then(function (data) {
+pify(fs.readFile)('package.json', 'utf8').then(data => {
 	console.log(JSON.parse(data).name);
 	//=> 'pify'
 });
 
 // promisify all methods in a module
-var promiseFs = pify.all(fs);
+const promiseFs = pify.all(fs);
 
-promiseFs.readFile('package.json', 'utf8').then(function (data) {
+promiseFs.readFile('package.json', 'utf8').then(data => {
 	console.log(JSON.parse(data).name);
 	//=> 'pify'
 });

@@ -1,13 +1,9 @@
 'use strict';
 
-function isFn(fn) {
-	return ({}).toString.call(fn) === '[object Function]';
-}
-
 var pify = module.exports = function (fn, P) {
 	P = P || Promise;
 
-	if (!isFn(fn)) {
+	if (typeof fn !== 'function') {
 		throw new TypeError('Expected a function');
 	}
 
@@ -31,15 +27,13 @@ var pify = module.exports = function (fn, P) {
 	};
 };
 
-pify.all = function (module, P) {
+pify.all = function (obj, P) {
 	var ret = {};
 
-	for (var method in module) {
-		if (({}).hasOwnProperty.call(module, method)) {
-			var x = module[method];
-			ret[method] = isFn(x) ? pify(x, P) : x;
-		}
-	}
+	Object.keys(obj).forEach(function (key) {
+		var x = obj[key];
+		ret[key] = typeof x === 'function' ? pify(x, P) : x;
+	});
 
 	return ret;
 };
