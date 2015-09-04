@@ -42,8 +42,8 @@ test('custom Promise module', function (t) {
 	});
 });
 
-test('return array when more than two arguments in callback', function (t) {
-	return fn(fixture3)().then(function (data) {
+test('multiArgs option', function (t) {
+	return fn(fixture3, {multiArgs: true})().then(function (data) {
 		t.same(data, ['unicorn', 'rainbow']);
 	});
 });
