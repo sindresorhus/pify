@@ -1,7 +1,7 @@
 'use strict';
 var fs = require('fs');
 var test = require('ava');
-var pinkiePromise = require('pinkie-promise');
+var pinkiePromise = global.Promise = require('pinkie-promise');
 var fn = require('./');
 
 function fixture(cb) {
