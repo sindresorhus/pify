@@ -9,7 +9,7 @@ var pify = module.exports = function (fn, P, opts) {
 	opts = opts || {};
 
 	if (typeof fn !== 'function') {
-		throw new TypeError('Expected a function');
+		return P.reject(new TypeError('Expected a function'));
 	}
 
 	return function () {
