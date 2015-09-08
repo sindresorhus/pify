@@ -33,26 +33,25 @@ var pify = module.exports = function (fn, P, opts) {
 };
 
 pify.all = function (obj, P, opts) {
-	var ret = {};
-	var include = false;
-	var testSet = [];
-
 	if (typeof P !== 'function') {
 		opts = P;
 		P = Promise;
 	}
 
+	var ret = {};
+	var testSet = [];
+
 	opts = opts || {};
 
 	if (opts.include) {
-		include = true;
 		testSet = testSet.concat(opts.include);
 	} else if (opts.exclude) {
 		testSet = testSet.concat(opts.exclude);
 	}
 
 	function filter(key) {
-		return include ^ (testSet.indexOf(key) === -1);
+		var referred = !(testSet.indexOf(key) === -1);
+		return opts.include ? referred : !referred;
 	}
 
 	Object.keys(obj).forEach(function (key) {
