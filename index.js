@@ -34,10 +34,30 @@ var pify = module.exports = function (fn, P, opts) {
 
 pify.all = function (obj, P, opts) {
 	var ret = {};
+	var include = false;
+	var testSet = [];
+
+	if (typeof P !== 'function') {
+		opts = P;
+		P = Promise;
+	}
+
+	opts = opts || {};
+
+	if (opts.include) {
+		include = true;
+		testSet = testSet.concat(opts.include);
+	} else if (opts.exclude) {
+		testSet = testSet.concat(opts.exclude);
+	}
+
+	function filter(key) {
+		return include ^ (testSet.indexOf(key) === -1);
+	}
 
 	Object.keys(obj).forEach(function (key) {
 		var x = obj[key];
-		ret[key] = typeof x === 'function' ? pify(x, P, opts) : x;
+		ret[key] = (typeof x === 'function') && filter(key) ? pify(x, P, opts) : x;
 	});
 
 	return ret;
