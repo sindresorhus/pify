@@ -38,21 +38,21 @@ pify.all = function (obj, P, opts) {
 		P = Promise;
 	}
 
-	var ret = {};
-	var testSet = [];
-
 	opts = opts || {};
 
-	if (opts.include) {
-		testSet = testSet.concat(opts.include);
-	} else if (opts.exclude) {
-		testSet = testSet.concat(opts.exclude);
-	}
+	var filter = function (key) {
+		if (opts.include) {
+			return opts.include.indexOf(key) !== -1;
+		}
 
-	function filter(key) {
-		var found = testSet.indexOf(key) !== -1;
-		return opts.include ? found : !found;
-	}
+		if (opts.exclude) {
+			return opts.exclude.indexOf(key) === -1;
+		}
+
+		return true;
+	};
+
+	var ret = {};
 
 	Object.keys(obj).forEach(function (key) {
 		var x = obj[key];
