@@ -52,12 +52,9 @@ pify.all = function (obj, P, opts) {
 		return true;
 	};
 
-	var ret = {};
-
-	Object.keys(obj).forEach(function (key) {
+	return Object.keys(obj).reduce(function (ret, key) {
 		var x = obj[key];
 		ret[key] = (typeof x === 'function') && filter(key) ? pify(x, P, opts) : x;
-	});
-
-	return ret;
+		return ret;
+	}, {});
 };

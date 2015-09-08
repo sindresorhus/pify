@@ -80,6 +80,7 @@ test('module support - transforms only members in opions.include', function (t) 
 		method2: fixture2,
 		method3: fixture4
 	};
+
 	var pModule = fn.all(module, {
 		include: ['method1', 'method2']
 	});
@@ -87,7 +88,6 @@ test('module support - transforms only members in opions.include', function (t) 
 	t.is(typeof pModule.method1().then, 'function');
 	t.is(typeof pModule.method2('fainbow').then, 'function');
 	t.not(typeof pModule.method3().then, 'function');
-
 	t.end();
 });
 
@@ -97,6 +97,7 @@ test('module support - doesn\'t transform members in opions.exclude', function (
 		method2: fixture4,
 		method3: fixture
 	};
+
 	var pModule = fn.all(module, {
 		exclude: ['method1', 'method2']
 	});
@@ -104,7 +105,6 @@ test('module support - doesn\'t transform members in opions.exclude', function (
 	t.not(typeof pModule.method1().then, 'function');
 	t.not(typeof pModule.method2().then, 'function');
 	t.is(typeof pModule.method3().then, 'function');
-
 	t.end();
 });
 
@@ -114,6 +114,7 @@ test('module support - options.include over opions.exclude', function (t) {
 		method2: fixture2,
 		method3: fixture4
 	};
+
 	var pModule = fn.all(module, {
 		include: ['method1', 'method2'],
 		exclude: ['method2', 'method3']
@@ -122,6 +123,5 @@ test('module support - options.include over opions.exclude', function (t) {
 	t.is(typeof pModule.method1().then, 'function');
 	t.is(typeof pModule.method2('rainbow').then, 'function');
 	t.not(typeof pModule.method3().then, 'function');
-
 	t.end();
 });
