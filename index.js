@@ -50,8 +50,8 @@ pify.all = function (obj, P, opts) {
 	}
 
 	function filter(key) {
-		var referred = !(testSet.indexOf(key) === -1);
-		return opts.include ? referred : !referred;
+		var found = !(testSet.indexOf(key) === -1);
+		return opts.include ? found : !found;
 	}
 
 	Object.keys(obj).forEach(function (key) {
