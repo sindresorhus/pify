@@ -50,7 +50,7 @@ pify.all = function (obj, P, opts) {
 	}
 
 	function filter(key) {
-		var found = !(testSet.indexOf(key) === -1);
+		var found = testSet.indexOf(key) !== -1;
 		return opts.include ? found : !found;
 	}
 
