@@ -33,11 +33,30 @@ var pify = module.exports = function (fn, P, opts) {
 };
 
 pify.all = function (obj, P, opts) {
+	if (typeof P !== 'function') {
+		opts = P;
+		P = Promise;
+	}
+
+	opts = opts || {};
+
+	var filter = function (key) {
+		if (opts.include) {
+			return opts.include.indexOf(key) !== -1;
+		}
+
+		if (opts.exclude) {
+			return opts.exclude.indexOf(key) === -1;
+		}
+
+		return true;
+	};
+
 	var ret = {};
 
 	Object.keys(obj).forEach(function (key) {
 		var x = obj[key];
-		ret[key] = typeof x === 'function' ? pify(x, P, opts) : x;
+		ret[key] = (typeof x === 'function') && filter(key) ? pify(x, P, opts) : x;
 	});
 
 	return ret;
