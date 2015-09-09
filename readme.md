@@ -83,13 +83,17 @@ pify(request, {multiArgs: true})('http://sindresorhus.com').then(result => {
 
 Type: `array`
 
-Works for `pify.all()` **only**. Supply an array of module's methods you want to promisify and only those methods will be transformed. Every other methods will be left untouched.
+*Works for `pify.all()` only.*
+
+Pick which methods in a module to promisify. Remaining methods will be left untouched.
 
 ##### exclude
 
 Type: `array`
 
-Works for `pify.all()` **only**. Supply an array of module's methods you **don't** want to promisify and those methods will be left untouched.
+*Works for `pify.all()` only.*
+
+Pick which methods in a module **not** to promisify.
 
 
 ## License
