@@ -26,6 +26,18 @@ function fixture4() {
 	return 'unicorn';
 }
 
+function fixture5(cb) {
+	setImmediate(function () {
+		cb(null, 'unicorn');
+	});
+}
+
+fixture5.meow = function (cb) {
+	setImmediate(function () {
+		cb(null, 'unicorn');
+	});
+};
+
 test('main', function (t) {
 	t.is(typeof fn(fixture)().then, 'function');
 
@@ -124,4 +136,26 @@ test('module support - options.include over opions.exclude', function (t) {
 	t.is(typeof pModule.method2('rainbow').then, 'function');
 	t.not(typeof pModule.method3().then, 'function');
 	t.end();
+});
+
+test('module support — function modules', function (t) {
+	var pModule = fn.all(fixture5);
+
+	t.is(typeof pModule().then, 'function');
+	t.is(typeof pModule.meow().then, 'function');
+	t.end();
+});
+
+test('module support — function modules exclusion', function (t) {
+	var pModule = fn.all(fixture5, {
+		excludeMain: true
+	});
+
+	t.plan(2);
+
+	t.is(typeof pModule.meow().then, 'function');
+	pModule(function () {
+		t.pass();
+		t.end();
+	});
 });

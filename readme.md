@@ -95,6 +95,14 @@ Type: `array`
 
 Pick which methods in a module **not** to promisify.
 
+##### excludeMain
+
+Type: `array`
+
+*Works for `pify.all()` only.*
+
+Set to `true` if you do **not** want to promisify module's main function.
+
 
 ## License
 
