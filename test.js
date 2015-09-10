@@ -30,6 +30,7 @@ function fixture5(cb) {
 	setImmediate(function () {
 		cb(null, 'unicorn');
 	});
+	return true;
 }
 
 fixture5.meow = function (cb) {
@@ -151,11 +152,7 @@ test('module support — function modules exclusion', function (t) {
 		excludeMain: true
 	});
 
-	t.plan(2);
-
 	t.is(typeof pModule.meow().then, 'function');
-	pModule(function () {
-		t.pass();
-		t.end();
-	});
+	t.not(typeof pModule(function () {}).then, 'function');
+	t.end();
 });

@@ -56,7 +56,8 @@ pify.all = function (obj, P, opts) {
 		if (opts.excludeMain) {
 			return obj.apply(this, arguments);
 		}
-		return pify(obj.bind(this), P, opts).apply(this, arguments);
+
+		return pify(obj, P, opts).apply(this, arguments);
 	} : {};
 
 	return Object.keys(obj).reduce(function (ret, key) {
