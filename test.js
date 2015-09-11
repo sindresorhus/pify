@@ -95,7 +95,7 @@ test('module support - transforms only members in opions.include', function (t) 
 	};
 
 	var pModule = fn.all(module, {
-		include: ['method1', 'method2']
+		include: ['method*', '!method3']
 	});
 
 	t.is(typeof pModule.method1().then, 'function');
@@ -154,5 +154,10 @@ test('module support — function modules exclusion', function (t) {
 
 	t.is(typeof pModule.meow().then, 'function');
 	t.not(typeof pModule(function () {}).then, 'function');
+	t.end();
+});
+
+test('module support – glob exclusion', function (t) {
+	t.is(typeof fn.all(fs, {include: '!*Sync'}).readFileSync('package.json', 'utf8'), 'string');
 	t.end();
 });

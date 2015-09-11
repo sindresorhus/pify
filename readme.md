@@ -22,7 +22,7 @@ pify(fs.readFile)('package.json', 'utf8').then(data => {
 });
 
 // promisify all methods in a module
-const promiseFs = pify.all(fs);
+const promiseFs = pify.all(fs, {include : '!*Sync'});
 
 promiseFs.readFile('package.json', 'utf8').then(data => {
 	console.log(JSON.parse(data).name);
@@ -81,7 +81,9 @@ pify(request, {multiArgs: true})('http://sindresorhus.com').then(result => {
 
 ##### include
 
-Type: `array`
+Type: `string` or `array`
+
+[Glob](https://github.com/isaacs/node-glob#glob-primer) or array of globs.
 
 *Works for `pify.all()` only.*
 
@@ -89,7 +91,9 @@ Pick which methods in a module to promisify. Remaining methods will be left unto
 
 ##### exclude
 
-Type: `array`
+Type: `string` or `array`
+
+[Glob](https://github.com/isaacs/node-glob#glob-primer) or array of globs.
 
 *Works for `pify.all()` only.*
 

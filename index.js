@@ -1,4 +1,5 @@
 'use strict';
+var minimatch = require('minimatch');
 
 var pify = module.exports = function (fn, P, opts) {
 	if (typeof P !== 'function') {
@@ -40,13 +41,23 @@ pify.all = function (obj, P, opts) {
 
 	opts = opts || {};
 
-	var filter = function (key) {
-		if (opts.include) {
-			return opts.include.indexOf(key) !== -1;
-		}
+	if (opts.exclude && !opts.include) {
+		opts.include = opts.exclude.map(function (glob) {
+			return '!' + glob;
+		});
+	}
 
-		if (opts.exclude) {
-			return opts.exclude.indexOf(key) === -1;
+	var filter = function (key) {
+		var negate = false;
+		var flag = false;
+
+		if (opts.include) {
+			[].concat(opts.include).forEach(function (glob) {
+				negate = ((glob[0] === '!') && minimatch(key, glob.slice(1))) || negate;
+				flag = minimatch(key, glob) || flag;
+			});
+
+			return flag && !negate;
 		}
 
 		return true;
