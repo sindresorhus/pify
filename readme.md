@@ -95,6 +95,38 @@ Type: `array`
 
 Pick which methods in a module **not** to promisify.
 
+##### excludeMain
+
+Type: `boolean`  
+Default: `false`
+
+*Works for `pify.all()` only.*
+
+By default, if given `module` is a function itself, this function will be promisified. Turn this option on if you want to promisify only methods of the module.
+
+```js
+const pify = require('pify');
+
+function fn() {
+	return true;
+}
+
+fn.method = (data, callback) => {
+	setImmediate(() => {
+		callback(data, null);
+	});
+};
+
+// promisify methods but not fn()
+const promiseFn = pify.all(fn, {excludeMain: true});
+
+if (promiseFn()) {
+	promiseFn.method('hi').then(data => {
+		console.log(data);
+	});
+}
+```
+
 
 ## License
 
