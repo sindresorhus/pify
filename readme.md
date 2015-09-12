@@ -35,23 +35,13 @@ promiseFs.readFile('package.json', 'utf8').then(data => {
 
 ### pify(input, [promiseModule], [options])
 
-Returns a promise wrapped version of the supplied function.
+Returns a promise wrapped version of the supplied function or module.
 
 #### input
 
-Type: `function`
+Type: `function` or `object`
 
-Callback-style function.
-
-### pify.all(module, [promiseModule], [options])
-
-Returns a version of the module with all its methods promisified.
-
-#### module
-
-Type: `object`
-
-Module whose methods you want to promisify.
+Callback-style function or module whose methods you want to promisify.
 
 #### promiseModule
 
@@ -85,26 +75,12 @@ Type: `string` or `array`
 
 [Glob](https://github.com/isaacs/node-glob#glob-primer) or array of globs.
 
-*Works for `pify.all()` only.*
-
 Pick which methods in a module to promisify. Remaining methods will be left untouched.
-
-##### exclude
-
-Type: `string` or `array`
-
-[Glob](https://github.com/isaacs/node-glob#glob-primer) or array of globs.
-
-*Works for `pify.all()` only.*
-
-Pick which methods in a module **not** to promisify.
 
 ##### excludeMain
 
 Type: `boolean`  
 Default: `false`
-
-*Works for `pify.all()` only.*
 
 By default, if given `module` is a function itself, this function will be promisified. Turn this option on if you want to promisify only methods of the module.
 

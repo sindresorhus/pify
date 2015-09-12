@@ -1,7 +1,7 @@
 'use strict';
 var minimatch = require('minimatch');
 
-var pify = module.exports = function (fn, P, opts) {
+var process = function (fn, P, opts) {
 	if (typeof P !== 'function') {
 		opts = P;
 		P = Promise;
@@ -33,7 +33,7 @@ var pify = module.exports = function (fn, P, opts) {
 	};
 };
 
-pify.all = function (obj, P, opts) {
+var pify = module.exports = function (obj, P, opts) {
 	if (typeof P !== 'function') {
 		opts = P;
 		P = Promise;
@@ -48,16 +48,16 @@ pify.all = function (obj, P, opts) {
 	}
 
 	var filter = function (key) {
-		var negate = false;
-		var flag = false;
-
 		if (opts.include) {
+			var include = false;
+			var exclude = false;
+
 			[].concat(opts.include).forEach(function (glob) {
-				negate = ((glob[0] === '!') && minimatch(key, glob.slice(1))) || negate;
-				flag = minimatch(key, glob) || flag;
+				exclude = ((glob[0] === '!') && minimatch(key, glob.slice(1))) || exclude;
+				include = minimatch(key, glob) || include;
 			});
 
-			return flag && !negate;
+			return include && !exclude;
 		}
 
 		return true;
@@ -68,12 +68,14 @@ pify.all = function (obj, P, opts) {
 			return obj.apply(this, arguments);
 		}
 
-		return pify(obj, P, opts).apply(this, arguments);
+		return process(obj, P, opts).apply(this, arguments);
 	} : {};
 
 	return Object.keys(obj).reduce(function (ret, key) {
 		var x = obj[key];
-		ret[key] = (typeof x === 'function') && filter(key) ? pify(x, P, opts) : x;
+		ret[key] = (typeof x === 'function') && filter(key) ? process(x, P, opts) : x;
 		return ret;
 	}, ret);
 };
+
+pify.all = pify;
