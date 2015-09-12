@@ -22,7 +22,7 @@ pify(fs.readFile)('package.json', 'utf8').then(data => {
 });
 
 // promisify all methods in a module
-const promiseFs = pify.all(fs, {include : '!*Sync'});
+const promiseFs = pify(fs, {include : '!*Sync'});
 
 promiseFs.readFile('package.json', 'utf8').then(data => {
 	console.log(JSON.parse(data).name);
@@ -98,7 +98,7 @@ fn.method = (data, callback) => {
 };
 
 // promisify methods but not fn()
-const promiseFn = pify.all(fn, {excludeMain: true});
+const promiseFn = pify(fn, {excludeMain: true});
 
 if (promiseFn()) {
 	promiseFn.method('hi').then(data => {
