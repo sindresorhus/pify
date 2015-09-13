@@ -2,13 +2,6 @@
 var minimatch = require('minimatch');
 
 var process = function (fn, P, opts) {
-	if (typeof P !== 'function') {
-		opts = P;
-		P = Promise;
-	}
-
-	opts = opts || {};
-
 	if (typeof fn !== 'function') {
 		return P.reject(new TypeError('Expected a function'));
 	}
@@ -40,20 +33,21 @@ var pify = module.exports = function (obj, P, opts) {
 	}
 
 	opts = opts || {};
+	opts.match = opts.match || opts.include;
 
-	if (opts.exclude && !opts.include) {
-		opts.include = opts.exclude.map(function (glob) {
+	if (opts.exclude && !opts.match) {
+		opts.match = opts.exclude.map(function (glob) {
 			return '!' + glob;
 		});
 	}
 
 	var filter = function (key) {
-		if (opts.include) {
+		if (opts.match) {
 			var include = false;
 			var exclude = false;
 
-			[].concat(opts.include).forEach(function (glob) {
-				exclude = ((glob[0] === '!') && minimatch(key, glob.slice(1))) || exclude;
+			[].concat(opts.match).forEach(function (glob) {
+				exclude = (glob[0] === '!') && minimatch(key, glob, {flipNegate: true}) || exclude;
 				include = minimatch(key, glob) || include;
 			});
 

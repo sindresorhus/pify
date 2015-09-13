@@ -69,7 +69,7 @@ pify(request, {multiArgs: true})('http://sindresorhus.com').then(result => {
 });
 ```
 
-##### include
+##### match
 
 Type: `string` or `array`
 
