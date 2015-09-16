@@ -44,6 +44,6 @@
     "xo": "*"
   },
   "dependencies": {
-    "minimatch": "^2.0.10"
+    "multimatch": "^2.0.0"
   }
 }

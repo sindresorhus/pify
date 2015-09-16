@@ -1,5 +1,5 @@
 'use strict';
-var minimatch = require('minimatch');
+var multimatch = require('multimatch');
 
 var process = function (fn, P, opts) {
 	if (typeof fn !== 'function') {
@@ -36,22 +36,14 @@ var pify = module.exports = function (obj, P, opts) {
 	opts.match = opts.match || opts.include;
 
 	if (opts.exclude && !opts.match) {
-		opts.match = opts.exclude.map(function (glob) {
+		opts.match = ['*'].concat(opts.exclude.map(function (glob) {
 			return '!' + glob;
-		});
+		}));
 	}
 
 	var filter = function (key) {
 		if (opts.match) {
-			var include = false;
-			var exclude = false;
-
-			[].concat(opts.match).forEach(function (glob) {
-				exclude = (glob[0] === '!') && minimatch(key, glob, {flipNegate: true}) || exclude;
-				include = minimatch(key, glob) || include;
-			});
-
-			return include && !exclude;
+			return (multimatch(key, opts.match).indexOf(key) !== -1);
 		}
 
 		return true;
