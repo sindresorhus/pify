@@ -1,7 +1,6 @@
 'use strict';
-var multimatch = require('multimatch');
 
-var process = function (fn, P, opts) {
+var processFn = function (fn, P, opts) {
 	if (typeof fn !== 'function') {
 		return P.reject(new TypeError('Expected a function'));
 	}
@@ -33,20 +32,24 @@ var pify = module.exports = function (obj, P, opts) {
 	}
 
 	opts = opts || {};
-	opts.match = opts.match || opts.include;
-
-	if (opts.exclude && !opts.match) {
-		opts.match = ['*'].concat(opts.exclude.map(function (glob) {
-			return '!' + glob;
-		}));
-	}
+	opts.exclude = opts.exclude || [/^.+Sync$/];
 
 	var filter = function (key) {
-		if (opts.match) {
-			return (multimatch(key, opts.match).indexOf(key) !== -1);
-		}
+		var check = function (patterns) {
+			for (var i = 0; i < patterns.length; i++) {
+				if (typeof patterns[i] === 'string') {
+					if (key === patterns[i]) {
+						return true;
+					}
+				} else if ((new RegExp(patterns[i])).test(key)) {
+					return true;
+				}
+			}
 
-		return true;
+			return false;
+		};
+
+		return (opts.include) ? check(opts.include) : !check(opts.exclude);
 	};
 
 	var ret = (typeof obj === 'function') ? function () {
@@ -54,12 +57,12 @@ var pify = module.exports = function (obj, P, opts) {
 			return obj.apply(this, arguments);
 		}
 
-		return process(obj, P, opts).apply(this, arguments);
+		return processFn(obj, P, opts).apply(this, arguments);
 	} : {};
 
 	return Object.keys(obj).reduce(function (ret, key) {
 		var x = obj[key];
-		ret[key] = (typeof x === 'function') && filter(key) ? process(x, P, opts) : x;
+		ret[key] = (typeof x === 'function') && filter(key) ? processFn(x, P, opts) : x;
 		return ret;
 	}, ret);
 };

@@ -13,18 +13,19 @@ $ npm install --save pify
 ## Usage
 
 ```js
-const fs = require('fs');
-const pify = require('pify');
+import fs from 'fs';
+import pify from 'pify';
+
+// promisify a single function
 
 pify(fs.readFile)('package.json', 'utf8').then(data => {
 	console.log(JSON.parse(data).name);
 	//=> 'pify'
 });
 
-// promisify all methods in a module
-const promiseFs = pify(fs, {include : '!*Sync'});
+// or promisify all methods in a module
 
-promiseFs.readFile('package.json', 'utf8').then(data => {
+pify(fs).readFile('package.json', 'utf8').then(data => {
 	console.log(JSON.parse(data).name);
 	//=> 'pify'
 });
@@ -69,13 +70,22 @@ pify(request, {multiArgs: true})('http://sindresorhus.com').then(result => {
 });
 ```
 
-##### match
+##### include
 
-Type: `string` or `array`
-
-[Glob](https://github.com/isaacs/node-glob#glob-primer) or array of globs.
+Type: `array`
 
 Pick which methods in a module to promisify. Remaining methods will be left untouched.
+
+You can specify either `strings` or `regular expressions` as method names.
+
+##### exclude
+
+Type: `array`  
+Default: `[/^.+Sync$/]`
+
+Pick which methods in a module **not** to promisify. Methods with names ending with `'Sync'` are excluded by default.
+
+You can specify either `strings` or `regular expressions` as method names.
 
 ##### excludeMain
 
@@ -85,7 +95,7 @@ Default: `false`
 By default, if given `module` is a function itself, this function will be promisified. Turn this option on if you want to promisify only methods of the module.
 
 ```js
-const pify = require('pify');
+import pify from 'pify';
 
 function fn() {
 	return true;
