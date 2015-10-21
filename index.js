@@ -35,21 +35,11 @@ var pify = module.exports = function (obj, P, opts) {
 	opts.exclude = opts.exclude || [/^.+Sync$/];
 
 	var filter = function (key) {
-		var check = function (patterns) {
-			for (var i = 0; i < patterns.length; i++) {
-				if (typeof patterns[i] === 'string') {
-					if (key === patterns[i]) {
-						return true;
-					}
-				} else if ((new RegExp(patterns[i])).test(key)) {
-					return true;
-				}
-			}
-
-			return false;
+		var match = function (pattern) {
+			return typeof pattern === 'string' ? key === pattern : pattern.test(key);
 		};
 
-		return (opts.include) ? check(opts.include) : !check(opts.exclude);
+		return opts.include ? opts.include.some(match) : !opts.exclude.some(match);
 	};
 
 	var ret = (typeof obj === 'function') ? function () {

@@ -13,8 +13,8 @@ $ npm install --save pify
 ## Usage
 
 ```js
-import fs from 'fs';
-import pify from 'pify';
+const fs = require('fs');
+const pify = require('pify');
 
 // promisify a single function
 
@@ -95,7 +95,7 @@ Default: `false`
 By default, if given `module` is a function itself, this function will be promisified. Turn this option on if you want to promisify only methods of the module.
 
 ```js
-import pify from 'pify';
+const pify = require('pify');
 
 function fn() {
 	return true;

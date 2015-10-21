@@ -42,8 +42,5 @@
     "ava": "*",
     "pinkie-promise": "^1.0.0",
     "xo": "*"
-  },
-  "dependencies": {
-    "multimatch": "^2.0.0"
   }
 }
