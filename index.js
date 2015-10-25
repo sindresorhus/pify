@@ -14,14 +14,23 @@ var pify = module.exports = function (fn, P, opts) {
 
 	return function () {
 		var that = this;
-		var args = [].slice.call(arguments);
+		var args = new Array(arguments.length);
+
+		for (var i = 0; i < arguments.length; i++) {
+			args[i] = arguments[i];
+		}
 
 		return new P(function (resolve, reject) {
 			args.push(function (err, result) {
 				if (err) {
 					reject(err);
 				} else if (opts.multiArgs) {
-					resolve([].slice.call(arguments, 1));
+					var results = new Array(arguments.length - 1);
+
+					for (var i = 1; i < arguments.length; i++) {
+						results[i - 1] = arguments[i];
+					}
+					resolve(results);
 				} else {
 					resolve(result);
 				}
