@@ -16,15 +16,16 @@ $ npm install --save pify
 const fs = require('fs');
 const pify = require('pify');
 
+// promisify a single function
+
 pify(fs.readFile)('package.json', 'utf8').then(data => {
 	console.log(JSON.parse(data).name);
 	//=> 'pify'
 });
 
-// promisify all methods in a module
-const promiseFs = pify.all(fs);
+// or promisify all methods in a module
 
-promiseFs.readFile('package.json', 'utf8').then(data => {
+pify(fs).readFile('package.json', 'utf8').then(data => {
 	console.log(JSON.parse(data).name);
 	//=> 'pify'
 });
@@ -35,23 +36,13 @@ promiseFs.readFile('package.json', 'utf8').then(data => {
 
 ### pify(input, [promiseModule], [options])
 
-Returns a promise wrapped version of the supplied function.
+Returns a promise wrapped version of the supplied function or module.
 
 #### input
 
-Type: `function`
+Type: `function` or `object`
 
-Callback-style function.
-
-### pify.all(module, [promiseModule], [options])
-
-Returns a version of the module with all its methods promisified.
-
-#### module
-
-Type: `object`
-
-Module whose methods you want to promisify.
+Callback-style function or module whose methods you want to promisify.
 
 #### promiseModule
 
@@ -83,24 +74,23 @@ pify(request, {multiArgs: true})('http://sindresorhus.com').then(result => {
 
 Type: `array`
 
-*Works for `pify.all()` only.*
-
 Pick which methods in a module to promisify. Remaining methods will be left untouched.
+
+You can specify either `strings` or `regular expressions` as method names.
 
 ##### exclude
 
-Type: `array`
+Type: `array`  
+Default: `[/^.+Sync$/]`
 
-*Works for `pify.all()` only.*
+Pick which methods in a module **not** to promisify. Methods with names ending with `'Sync'` are excluded by default.
 
-Pick which methods in a module **not** to promisify.
+You can specify either `strings` or `regular expressions` as method names.
 
 ##### excludeMain
 
 Type: `boolean`  
 Default: `false`
-
-*Works for `pify.all()` only.*
 
 By default, if given `module` is a function itself, this function will be promisified. Turn this option on if you want to promisify only methods of the module.
 
@@ -118,7 +108,7 @@ fn.method = (data, callback) => {
 };
 
 // promisify methods but not fn()
-const promiseFn = pify.all(fn, {excludeMain: true});
+const promiseFn = pify(fn, {excludeMain: true});
 
 if (promiseFn()) {
 	promiseFn.method('hi').then(data => {

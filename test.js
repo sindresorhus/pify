@@ -22,21 +22,27 @@ function fixture3(cb) {
 	});
 }
 
-function fixture4() {
-	return 'unicorn';
-}
-
-function fixture5(cb) {
+function fixture4(cb) {
 	setImmediate(function () {
 		cb(null, 'unicorn');
 	});
-	return true;
+	return 'rainbow';
 }
 
-fixture5.meow = function (cb) {
+fixture4.meow = function (cb) {
 	setImmediate(function () {
 		cb(null, 'unicorn');
 	});
+};
+
+function fixture5() {
+	return 'rainbow';
+}
+
+var fixtureModule = {
+	method1: fixture,
+	method2: fixture,
+	method3: fixture5
 };
 
 test('main', function (t) {
@@ -72,9 +78,15 @@ test('wrap core method', function (t) {
 });
 
 test('module support', function (t) {
-	return fn.all(fs).readFile('package.json').then(function (data) {
+	return fn(fs).readFile('package.json').then(function (data) {
 		t.is(JSON.parse(data).name, 'pify');
 	});
+});
+
+test('module support - doesn\'t transform *Sync methods by default', function (t) {
+	var data = fn(fs).readFileSync('package.json');
+	t.is(JSON.parse(data).name, 'pify');
+	t.end();
 });
 
 test('module support - preserves non-function members', function (t) {
@@ -83,64 +95,46 @@ test('module support - preserves non-function members', function (t) {
 		nonMethod: 3
 	};
 
-	t.same(Object.keys(module), Object.keys(fn.all(module)));
+	t.same(Object.keys(module), Object.keys(fn(module)));
 	t.end();
 });
 
 test('module support - transforms only members in opions.include', function (t) {
-	var module = {
-		method1: fixture,
-		method2: fixture2,
-		method3: fixture4
-	};
-
-	var pModule = fn.all(module, {
+	var pModule = fn(fixtureModule, {
 		include: ['method1', 'method2']
 	});
 
 	t.is(typeof pModule.method1().then, 'function');
-	t.is(typeof pModule.method2('fainbow').then, 'function');
+	t.is(typeof pModule.method2().then, 'function');
 	t.not(typeof pModule.method3().then, 'function');
 	t.end();
 });
 
 test('module support - doesn\'t transform members in opions.exclude', function (t) {
-	var module = {
-		method1: fixture4,
-		method2: fixture4,
-		method3: fixture
-	};
-
-	var pModule = fn.all(module, {
-		exclude: ['method1', 'method2']
+	var pModule = fn(fixtureModule, {
+		exclude: ['method3']
 	});
 
-	t.not(typeof pModule.method1().then, 'function');
-	t.not(typeof pModule.method2().then, 'function');
-	t.is(typeof pModule.method3().then, 'function');
+	t.is(typeof pModule.method1().then, 'function');
+	t.is(typeof pModule.method2().then, 'function');
+	t.not(typeof pModule.method3().then, 'function');
 	t.end();
 });
 
 test('module support - options.include over opions.exclude', function (t) {
-	var module = {
-		method1: fixture,
-		method2: fixture2,
-		method3: fixture4
-	};
-
-	var pModule = fn.all(module, {
+	var pModule = fn(fixtureModule, {
 		include: ['method1', 'method2'],
 		exclude: ['method2', 'method3']
 	});
 
 	t.is(typeof pModule.method1().then, 'function');
-	t.is(typeof pModule.method2('rainbow').then, 'function');
+	t.is(typeof pModule.method2().then, 'function');
 	t.not(typeof pModule.method3().then, 'function');
 	t.end();
 });
 
 test('module support — function modules', function (t) {
-	var pModule = fn.all(fixture5);
+	var pModule = fn(fixture4);
 
 	t.is(typeof pModule().then, 'function');
 	t.is(typeof pModule.meow().then, 'function');
@@ -148,7 +142,7 @@ test('module support — function modules', function (t) {
 });
 
 test('module support — function modules exclusion', function (t) {
-	var pModule = fn.all(fixture5, {
+	var pModule = fn(fixture4, {
 		excludeMain: true
 	});
 

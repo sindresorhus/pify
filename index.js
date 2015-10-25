@@ -1,13 +1,6 @@
 'use strict';
 
-var pify = module.exports = function (fn, P, opts) {
-	if (typeof P !== 'function') {
-		opts = P;
-		P = Promise;
-	}
-
-	opts = opts || {};
-
+var processFn = function (fn, P, opts) {
 	if (typeof fn !== 'function') {
 		return P.reject(new TypeError('Expected a function'));
 	}
@@ -32,24 +25,21 @@ var pify = module.exports = function (fn, P, opts) {
 	};
 };
 
-pify.all = function (obj, P, opts) {
+var pify = module.exports = function (obj, P, opts) {
 	if (typeof P !== 'function') {
 		opts = P;
 		P = Promise;
 	}
 
 	opts = opts || {};
+	opts.exclude = opts.exclude || [/^.+Sync$/];
 
 	var filter = function (key) {
-		if (opts.include) {
-			return opts.include.indexOf(key) !== -1;
-		}
+		var match = function (pattern) {
+			return typeof pattern === 'string' ? key === pattern : pattern.test(key);
+		};
 
-		if (opts.exclude) {
-			return opts.exclude.indexOf(key) === -1;
-		}
-
-		return true;
+		return opts.include ? opts.include.some(match) : !opts.exclude.some(match);
 	};
 
 	var ret = (typeof obj === 'function') ? function () {
@@ -57,12 +47,14 @@ pify.all = function (obj, P, opts) {
 			return obj.apply(this, arguments);
 		}
 
-		return pify(obj, P, opts).apply(this, arguments);
+		return processFn(obj, P, opts).apply(this, arguments);
 	} : {};
 
 	return Object.keys(obj).reduce(function (ret, key) {
 		var x = obj[key];
-		ret[key] = (typeof x === 'function') && filter(key) ? pify(x, P, opts) : x;
+		ret[key] = (typeof x === 'function') && filter(key) ? processFn(x, P, opts) : x;
 		return ret;
 	}, ret);
 };
+
+pify.all = pify;
