@@ -13,7 +13,8 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "test": "xo && ava"
+    "test": "xo && ava && npm run optimization-test",
+    "optimization-test": "node --allow-natives-syntax optimization-test.js"
   },
   "files": [
     "index.js"
@@ -41,6 +42,7 @@
   "devDependencies": {
     "ava": "*",
     "pinkie-promise": "^1.0.0",
+    "v8-natives": "0.0.2",
     "xo": "*"
   }
 }
