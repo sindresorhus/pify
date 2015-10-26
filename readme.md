@@ -40,7 +40,7 @@ Returns a promise wrapped version of the supplied function or module.
 
 #### input
 
-Type: `function` or `object`
+Type: `function`, `object`
 
 Callback-style function or module whose methods you want to promisify.
 
@@ -65,34 +65,30 @@ By default, the promisified function will only return the second argument from t
 const request = require('request');
 const pify = require('pify');
 
-pify(request, {multiArgs: true})('http://sindresorhus.com').then(result => {
+pify(request, {multiArgs: true})('https://sindresorhus.com').then(result => {
 	const [httpResponse, body] = result;
 });
 ```
 
 ##### include
 
-Type: `array`
+Type: `array` of (`string`|`regex`)
 
-Pick which methods in a module to promisify. Remaining methods will be left untouched.
-
-You can specify either `strings` or `regular expressions` as method names.
+Methods in a module to promisify. Remaining methods will be left untouched.
 
 ##### exclude
 
-Type: `array`  
-Default: `[/^.+Sync$/]`
+Type: `array` of (`string`|`regex`)  
+Default: `[/.+Sync$/]`
 
-Pick which methods in a module **not** to promisify. Methods with names ending with `'Sync'` are excluded by default.
-
-You can specify either `strings` or `regular expressions` as method names.
+Methods in a module **not** to promisify. Methods with names ending with `'Sync'` are excluded by default.
 
 ##### excludeMain
 
 Type: `boolean`  
 Default: `false`
 
-By default, if given `module` is a function itself, this function will be promisified. Turn this option on if you want to promisify only methods of the module.
+By default, if given module is a function itself, this function will be promisified. Turn this option on if you want to promisify only methods of the module.
 
 ```js
 const pify = require('pify');

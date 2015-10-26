@@ -1,4 +1,4 @@
-/* eslint no-inline-comments:0, lines-around-comment:0, no-fallthrough:0 */
+/* eslint-disable no-fallthrough */
 'use strict';
 var assert = require('assert');
 var Promise = require('pinkie-promise');
@@ -26,7 +26,7 @@ function assertOptimized(fn, name) {
 	}
 }
 
-var sut = fn.all({
+var sut = fn({
 	unicorn: function (cb) {
 		cb(null, 'unicorn');
 	}
@@ -34,6 +34,7 @@ var sut = fn.all({
 
 sut.unicorn().then(function () {
 	v8.optimizeFunctionOnNextCall(sut.unicorn);
+
 	return sut.unicorn().then(function () {
 		assertOptimized(sut.unicorn, 'unicorn');
 	});
