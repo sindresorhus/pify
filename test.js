@@ -74,17 +74,15 @@ test('module support', async t => {
 
 test('module support - doesn\'t transform *Sync methods by default', t => {
 	t.is(JSON.parse(fn(fs).readFileSync('package.json')).name, 'pify');
-	t.end();
 });
 
 test('module support - preserves non-function members', t => {
 	const module = {
-		method: () => {},
+		method: function () {},
 		nonMethod: 3
 	};
 
 	t.same(Object.keys(module), Object.keys(fn(module)));
-	t.end();
 });
 
 test('module support - transforms only members in opions.include', t => {
@@ -95,7 +93,6 @@ test('module support - transforms only members in opions.include', t => {
 	t.is(typeof pModule.method1().then, 'function');
 	t.is(typeof pModule.method2().then, 'function');
 	t.not(typeof pModule.method3().then, 'function');
-	t.end();
 });
 
 test('module support - doesn\'t transform members in opions.exclude', t => {
@@ -106,7 +103,6 @@ test('module support - doesn\'t transform members in opions.exclude', t => {
 	t.is(typeof pModule.method1().then, 'function');
 	t.is(typeof pModule.method2().then, 'function');
 	t.not(typeof pModule.method3().then, 'function');
-	t.end();
 });
 
 test('module support - options.include over opions.exclude', t => {
@@ -118,7 +114,6 @@ test('module support - options.include over opions.exclude', t => {
 	t.is(typeof pModule.method1().then, 'function');
 	t.is(typeof pModule.method2().then, 'function');
 	t.not(typeof pModule.method3().then, 'function');
-	t.end();
 });
 
 test('module support — function modules', t => {
@@ -126,7 +121,6 @@ test('module support — function modules', t => {
 
 	t.is(typeof pModule().then, 'function');
 	t.is(typeof pModule.meow().then, 'function');
-	t.end();
 });
 
 test('module support — function modules exclusion', t => {
@@ -135,6 +129,5 @@ test('module support — function modules exclusion', t => {
 	});
 
 	t.is(typeof pModule.meow().then, 'function');
-	t.not(typeof pModule(() => {}).then, 'function');
-	t.end();
+	t.not(typeof pModule(function () {}).then, 'function');
 });

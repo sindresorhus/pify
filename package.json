@@ -44,10 +44,5 @@
     "pinkie-promise": "^2.0.0",
     "v8-natives": "0.0.2",
     "xo": "*"
-  },
-  "xo": {
-    "ignores": [
-      "test.js"
-    ]
   }
 }
