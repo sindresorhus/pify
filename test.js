@@ -41,6 +41,16 @@ function fixture5() {
 	return 'rainbow';
 }
 
+function Fixture6() {
+
+}
+
+Fixture6.prototype.foo = function (cb) {
+	setImmediate(() => {
+		cb(null, 'bar');
+	});
+};
+
 const fixtureModule = {
 	method1: fixture,
 	method2: fixture,
@@ -105,7 +115,7 @@ test('module support - doesn\'t transform members in opions.exclude', t => {
 	t.not(typeof pModule.method3().then, 'function');
 });
 
-test('module support - options.include over opions.exclude', t => {
+test('module support - options.include over options.exclude', t => {
 	const pModule = fn(fixtureModule, {
 		include: ['method1', 'method2'],
 		exclude: ['method2', 'method3']
@@ -130,4 +140,11 @@ test('module support — function modules exclusion', t => {
 
 	t.is(typeof pModule.meow().then, 'function');
 	t.not(typeof pModule(function () {}).then, 'function');
+});
+
+test('prototype support', async t => {
+	const pModule = fn(new Fixture6());
+
+	t.is(typeof pModule.foo().then, 'function');
+	t.is(await pModule.foo(), 'bar');
 });

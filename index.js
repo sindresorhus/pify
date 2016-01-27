@@ -56,13 +56,15 @@ var pify = module.exports = function (obj, P, opts) {
 		return processFn(obj, P, opts).apply(this, arguments);
 	} : {};
 
-	return Object.keys(obj).reduce(function (ret, key) {
-		var x = obj[key];
+	for (var key in obj) {
+		if (typeof obj[key] === 'function' && filter(key)) {
+			ret[key] = processFn(obj[key], P, opts);
+		} else {
+			ret[key] = obj[key];
+		}
+	}
 
-		ret[key] = typeof x === 'function' && filter(key) ? processFn(x, P, opts) : x;
-
-		return ret;
-	}, ret);
+	return ret;
 };
 
 pify.all = pify;
