@@ -11,13 +11,14 @@ var processFn = function (fn, P, opts) {
 
 		return new P(function (resolve, reject) {
 			args.push(function (err, result) {
-				if (err) {
+				if (err && !opts.allArgs) {
 					reject(err);
-				} else if (opts.multiArgs) {
-					var results = new Array(arguments.length - 1);
+				} else if (opts.multiArgs || opts.allArgs) {
+					var offset = opts.allArgs ? 0 : 1;
+					var results = new Array(arguments.length - offset);
 
-					for (var i = 1; i < arguments.length; i++) {
-						results[i - 1] = arguments[i];
+					for (var i = offset; i < arguments.length; i++) {
+						results[i - offset] = arguments[i];
 					}
 
 					resolve(results);
