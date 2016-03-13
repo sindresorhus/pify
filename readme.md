@@ -70,6 +70,25 @@ pify(request, {multiArgs: true})('https://sindresorhus.com').then(result => {
 });
 ```
 
+##### allArgs
+
+Type: `boolean`
+Default: `false`
+
+By default, the promisified function will only return the second argument from the callback. Turning this on will make it return an array of all arguments from the callback, *including* the error argument.
+
+```js
+const request = require('request');
+const pify = require('pify');
+
+const fn = async () => {
+	const [error, httpResponse, body] = await pify(request, {allArgs: true})('https://sindresorhus.com');
+	if (error || httpResponse.status !== 200) {
+		console.log('Error!');
+	}
+}
+```
+
 ##### include
 
 Type: `array` of (`string`|`regex`)

@@ -64,6 +64,10 @@ test('multiArgs option', async t => {
 	t.same(await fn(fixture3, {multiArgs: true})(), ['unicorn', 'rainbow']);
 });
 
+test('allArgs option', async t => {
+	t.same(await fn(fixture3, {allArgs: true})(), [null, 'unicorn', 'rainbow']);
+});
+
 test('wrap core method', async t => {
 	t.is(JSON.parse(await fn(fs.readFile)('package.json')).name, 'pify');
 });
