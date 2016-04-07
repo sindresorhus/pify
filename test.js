@@ -61,7 +61,7 @@ test('custom Promise module', async t => {
 });
 
 test('multiArgs option', async t => {
-	t.same(await fn(fixture3, {multiArgs: true})(), ['unicorn', 'rainbow']);
+	t.deepEqual(await fn(fixture3, {multiArgs: true})(), ['unicorn', 'rainbow']);
 });
 
 test('wrap core method', async t => {
@@ -82,7 +82,7 @@ test('module support - preserves non-function members', t => {
 		nonMethod: 3
 	};
 
-	t.same(Object.keys(module), Object.keys(fn(module)));
+	t.deepEqual(Object.keys(module), Object.keys(fn(module)));
 });
 
 test('module support - transforms only members in opions.include', t => {
