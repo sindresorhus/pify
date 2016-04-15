@@ -142,3 +142,21 @@ test('module support - method suffix', t => {
 	t.is(typeof pModule.method3Async().then, 'function');
 	t.is(typeof pModule.method3, 'undefined');
 });
+
+test('module support - modify original module', t => {
+	const module = {
+		method1: fixture,
+		method2: fixture
+	};
+	const pModule = fn(module, {
+		modify: true
+	});
+
+	t.is(pModule, module);
+
+	t.not(pModule.method1, fixture);
+	t.not(pModule.method2, fixture);
+
+	t.is(typeof pModule.method1().then, 'function');
+	t.is(typeof pModule.method2().then, 'function');
+});
