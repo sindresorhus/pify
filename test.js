@@ -131,3 +131,14 @@ test('module support — function modules exclusion', t => {
 	t.is(typeof pModule.meow().then, 'function');
 	t.not(typeof pModule(function () {}).then, 'function');
 });
+
+test('module support - method suffix', t => {
+	const pModule = fn(fixtureModule, {
+		suffix: 'Async'
+	});
+
+	t.is(typeof pModule.method1Async().then, 'function');
+	t.is(typeof pModule.method2Async().then, 'function');
+	t.is(typeof pModule.method3Async().then, 'function');
+	t.is(typeof pModule.method3, 'undefined');
+});

@@ -39,6 +39,7 @@ var pify = module.exports = function (obj, P, opts) {
 
 	opts = opts || {};
 	opts.exclude = opts.exclude || [/.+Sync$/];
+	opts.suffix = opts.suffix || '';
 
 	var filter = function (key) {
 		var match = function (pattern) {
@@ -59,7 +60,7 @@ var pify = module.exports = function (obj, P, opts) {
 	return Object.keys(obj).reduce(function (ret, key) {
 		var x = obj[key];
 
-		ret[key] = typeof x === 'function' && filter(key) ? processFn(x, P, opts) : x;
+		ret[key + opts.suffix] = typeof x === 'function' && filter(key) ? processFn(x, P, opts) : x;
 
 		return ret;
 	}, ret);
