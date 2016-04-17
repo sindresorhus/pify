@@ -5,31 +5,13 @@ import fn from './';
 
 global.Promise = pinkiePromise;
 
-function fixture(cb) {
-	setImmediate(() => {
-		cb(null, 'unicorn');
-	});
-}
-
-function fixture2(x, cb) {
-	setImmediate(() => {
-		cb(null, x);
-	});
-}
-
-function fixture3(cb) {
-	setImmediate(() => {
-		cb(null, 'unicorn', 'rainbow');
-	});
-}
-
-function fixture4(cb) {
-	setImmediate(() => {
-		cb(null, 'unicorn');
-	});
-
+const fixture = cb => setImmediate(() => cb(null, 'unicorn'));
+const fixture2 = (x, cb) => setImmediate(() => cb(null, x));
+const fixture3 = cb => setImmediate(() => cb(null, 'unicorn', 'rainbow'));
+const fixture4 = cb => setImmediate(() => {
+	cb(null, 'unicorn');
 	return 'rainbow';
-}
+});
 
 fixture4.meow = cb => {
 	setImmediate(() => {
@@ -37,9 +19,7 @@ fixture4.meow = cb => {
 	});
 };
 
-function fixture5() {
-	return 'rainbow';
-}
+const fixture5 = () => 'rainbow';
 
 const fixtureModule = {
 	method1: fixture,
@@ -85,7 +65,7 @@ test('module support - preserves non-function members', t => {
 	t.deepEqual(Object.keys(module), Object.keys(fn(module)));
 });
 
-test('module support - transforms only members in opions.include', t => {
+test('module support - transforms only members in options.include', t => {
 	const pModule = fn(fixtureModule, {
 		include: ['method1', 'method2']
 	});
@@ -95,7 +75,7 @@ test('module support - transforms only members in opions.include', t => {
 	t.not(typeof pModule.method3().then, 'function');
 });
 
-test('module support - doesn\'t transform members in opions.exclude', t => {
+test('module support - doesn\'t transform members in options.exclude', t => {
 	const pModule = fn(fixtureModule, {
 		exclude: ['method3']
 	});
@@ -105,7 +85,7 @@ test('module support - doesn\'t transform members in opions.exclude', t => {
 	t.not(typeof pModule.method3().then, 'function');
 });
 
-test('module support - options.include over opions.exclude', t => {
+test('module support - options.include over options.exclude', t => {
 	const pModule = fn(fixtureModule, {
 		include: ['method1', 'method2'],
 		exclude: ['method2', 'method3']
