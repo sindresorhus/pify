@@ -38,14 +38,14 @@ var pify = module.exports = function (obj, P, opts) {
 	}
 
 	opts = opts || {};
-	opts.exclude = opts.exclude || [/.+Sync$/];
+	var exclude = opts.exclude || [/.+Sync$/];
 
 	var filter = function (key) {
 		var match = function (pattern) {
 			return typeof pattern === 'string' ? key === pattern : pattern.test(key);
 		};
 
-		return opts.include ? opts.include.some(match) : !opts.exclude.some(match);
+		return opts.include ? opts.include.some(match) : !exclude.some(match);
 	};
 
 	var ret = typeof obj === 'function' ? function () {
