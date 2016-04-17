@@ -111,3 +111,32 @@ test('module support — function modules exclusion', t => {
 	t.is(typeof pModule.meow().then, 'function');
 	t.not(typeof pModule(function () {}).then, 'function');
 });
+
+test('module support - method suffix', t => {
+	const pModule = fn(fixtureModule, {
+		suffix: 'Async'
+	});
+
+	t.is(typeof pModule.method1Async().then, 'function');
+	t.is(typeof pModule.method2Async().then, 'function');
+	t.is(typeof pModule.method3Async().then, 'function');
+	t.is(typeof pModule.method3, 'undefined');
+});
+
+test('module support - modify original module', t => {
+	const module = {
+		method1: fixture,
+		method2: fixture
+	};
+	const pModule = fn(module, {
+		modify: true
+	});
+
+	t.is(pModule, module);
+
+	t.not(pModule.method1, fixture);
+	t.not(pModule.method2, fixture);
+
+	t.is(typeof pModule.method1().then, 'function');
+	t.is(typeof pModule.method2().then, 'function');
+});

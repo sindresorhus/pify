@@ -39,6 +39,8 @@ var pify = module.exports = function (obj, P, opts) {
 
 	opts = opts || {};
 	opts.exclude = opts.exclude || [/.+Sync$/];
+	opts.suffix = opts.suffix || '';
+	opts.modify = Boolean(opts.modify);
 
 	var filter = function (key) {
 		var match = function (pattern) {
@@ -48,18 +50,25 @@ var pify = module.exports = function (obj, P, opts) {
 		return opts.include ? opts.include.some(match) : !opts.exclude.some(match);
 	};
 
-	var ret = typeof obj === 'function' ? function () {
-		if (opts.excludeMain) {
-			return obj.apply(this, arguments);
-		}
+	var ret;
+	if (typeof obj === 'function') {
+		ret = function () {
+			if (opts.excludeMain) {
+				return obj.apply(this, arguments);
+			}
 
-		return processFn(obj, P, opts).apply(this, arguments);
-	} : {};
+			return processFn(obj, P, opts).apply(this, arguments);
+		};
+	} else if (opts.modify) {
+		ret = obj;
+	} else {
+		ret = {};
+	}
 
 	return Object.keys(obj).reduce(function (ret, key) {
 		var x = obj[key];
 
-		ret[key] = typeof x === 'function' && filter(key) ? processFn(x, P, opts) : x;
+		ret[key + opts.suffix] = typeof x === 'function' && filter(key) ? processFn(x, P, opts) : x;
 
 		return ret;
 	}, ret);
