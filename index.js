@@ -31,7 +31,7 @@ var processFn = function (fn, P, opts) {
 	};
 };
 
-var pify = module.exports = function (obj, P, opts) {
+var pify = module.exports = module.exports.default = function (obj, P, opts) {
 	if (typeof P !== 'function') {
 		opts = P;
 		P = Promise;
