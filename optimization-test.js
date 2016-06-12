@@ -1,4 +1,4 @@
-/* eslint-disable no-fallthrough */
+/* eslint-disable no-fallthrough, xo/no-process-exit*/
 'use strict';
 var assert = require('assert');
 var Promise = require('pinkie-promise');

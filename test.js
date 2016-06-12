@@ -27,6 +27,16 @@ const fixtureModule = {
 	method3: fixture5
 };
 
+class Concat {
+	constructor(a) {
+		this.a = a;
+	}
+
+	b(b, cb) {
+		setImmediate(() => cb(null, this.a + b));
+	}
+}
+
 test('main', async t => {
 	t.is(typeof fn(fixture)().then, 'function');
 	t.is(await fn(fixture)(), 'unicorn');
@@ -42,6 +52,12 @@ test('custom Promise module', async t => {
 
 test('multiArgs option', async t => {
 	t.deepEqual(await fn(fixture3, {multiArgs: true})(), ['unicorn', 'rainbow']);
+});
+
+test('string option returns promisified thunk for member function', async t => {
+	const concat = new Concat('foo');
+
+	t.is(await fn(concat, 'b')('bar'), 'foobar');
 });
 
 test('wrap core method', async t => {

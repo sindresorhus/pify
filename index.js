@@ -37,6 +37,10 @@ var pify = module.exports = function (obj, P, opts) {
 		P = Promise;
 	}
 
+	if (typeof opts === 'string') {
+		return processFn(obj[opts], P, {}).bind(obj);
+	}
+
 	opts = opts || {};
 	var exclude = opts.exclude || [/.+Sync$/];
 
