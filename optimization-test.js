@@ -40,5 +40,5 @@ sut.unicorn().then(function () {
 	});
 }).catch(function (err) {
 	console.log(err.stack);
-	process.exit(1);
+	process.exit(1); // eslint-disable-line xo/no-process-exit
 });

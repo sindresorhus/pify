@@ -48,6 +48,69 @@ test('wrap core method', async t => {
 	t.is(JSON.parse(await fn(fs.readFile)('package.json')).name, 'pify');
 });
 
+test('binds to the original object by default', async t => {
+	const obj = {
+		x: 'foo',
+		y: function (cb) {
+			setImmediate(() => cb(null, this.x));
+		}
+	};
+
+	const pified = fn(obj);
+	obj.x = 'bar';
+
+	t.is(await pified.y(), 'bar');
+	t.is(pified.x, 'bar');
+});
+
+test('bind:true will bind to the original object', async t => {
+	const obj = {
+		x: 'foo',
+		y: function (cb) {
+			setImmediate(() => cb(null, this.x));
+		}
+	};
+
+	const pified = fn(obj, {bind: true});
+	obj.x = 'bar';
+
+	t.is(await pified.y(), 'bar');
+	t.is(pified.x, 'bar');
+});
+
+test('bind:otherObj will bind to otherObj', async t => {
+	const obj = {
+		x: 'foo',
+		y: function (cb) {
+			setImmediate(() => cb(null, this.x));
+		}
+	};
+
+	const otherObj = {
+		x: 'baz'
+	};
+
+	const pified = fn(obj, {bind: otherObj});
+
+	t.is(await pified.y(), 'baz');
+});
+
+test('bind:false creates a copy', async t => {
+	const obj = {
+		x: 'foo',
+		y: function (cb) {
+			setImmediate(() => cb(null, this.x));
+		}
+	};
+
+	const pified = fn(obj, {bind: false});
+
+	obj.x = 'bar';
+
+	t.is(await pified.y(), 'foo');
+	t.is(pified.x, 'foo');
+});
+
 test('module support', async t => {
 	t.is(JSON.parse(await fn(fs).readFile('package.json')).name, 'pify');
 });
