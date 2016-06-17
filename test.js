@@ -60,7 +60,6 @@ test('binds to the original object by default', async t => {
 	obj.x = 'bar';
 
 	t.is(await pified.y(), 'bar');
-	t.is(pified.x, 'bar');
 });
 
 test('bind:true will bind to the original object', async t => {
@@ -75,24 +74,6 @@ test('bind:true will bind to the original object', async t => {
 	obj.x = 'bar';
 
 	t.is(await pified.y(), 'bar');
-	t.is(pified.x, 'bar');
-});
-
-test('bind:otherObj will bind to otherObj', async t => {
-	const obj = {
-		x: 'foo',
-		y: function (cb) {
-			setImmediate(() => cb(null, this.x));
-		}
-	};
-
-	const otherObj = {
-		x: 'baz'
-	};
-
-	const pified = fn(obj, {bind: otherObj});
-
-	t.is(await pified.y(), 'baz');
 });
 
 test('bind:false creates a copy', async t => {
@@ -119,13 +100,13 @@ test('module support - doesn\'t transform *Sync methods by default', t => {
 	t.is(JSON.parse(fn(fs).readFileSync('package.json')).name, 'pify');
 });
 
-test('module support - preserves non-function members', t => {
+test('module support - preserves non-function members when not binding', t => {
 	const module = {
 		method: function () {},
 		nonMethod: 3
 	};
 
-	t.deepEqual(Object.keys(module), Object.keys(fn(module)));
+	t.deepEqual(Object.keys(module), Object.keys(fn(module, {bind: false})));
 });
 
 test('module support - transforms only members in options.include', t => {
