@@ -39,7 +39,11 @@ var pify = module.exports = function (obj, P, opts) {
 
 	opts = opts || {};
 	var exclude = opts.exclude || [/.+Sync$/];
-	var bind = opts.bind === false ? false : obj;
+	var bind = opts.bind === false ? false : (opts.bind || obj);
+
+	if (bind === true) {
+		bind = obj;
+	}
 
 	var filter = function (key) {
 		var match = function (pattern) {
@@ -66,7 +70,18 @@ var pify = module.exports = function (obj, P, opts) {
 			}
 
 			ret[key] = x;
-		} else if (!bind) {
+		} else if (bind) {
+			Object.defineProperty(ret, key, {
+				enumerable: true,
+				configurable: true,
+				get: function () {
+					return bind[key];
+				},
+				set: function (val) {
+					bind[key] = val;
+				}
+			});
+		} else {
 			ret[key] = x;
 		}
 
