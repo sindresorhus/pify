@@ -111,6 +111,26 @@ test('bind:false creates a copy', async t => {
 	t.is(pified.x, 'foo');
 });
 
+test('bind:true will include prototype methods', async t => {
+	function Foo() {}
+
+	Foo.prototype.y = function (arg, cb) {
+		setImmediate(() => cb(null, this.x + arg));
+	};
+
+	Foo.prototype.x = 'foo';
+
+	const foo = new Foo();
+	const pified = fn(foo);
+
+	t.is(await pified.y('BAR'), 'fooBAR');
+
+	pified.x = 'FOO';
+
+	t.is(await pified.y('bar'), 'FOObar');
+	t.is(foo.x, 'FOO');
+});
+
 test('module support', async t => {
 	t.is(JSON.parse(await fn(fs).readFile('package.json')).name, 'pify');
 });
