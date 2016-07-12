@@ -61,7 +61,7 @@ var pify = module.exports = function (obj, P, opts) {
 		return processFn(obj, P, opts).apply(this, arguments);
 	} : {};
 
-	return Object.keys(obj).reduce(function (ret, key) {
+	function bindProperty(key) {
 		var x = obj[key];
 
 		if (typeof x === 'function') {
@@ -84,9 +84,13 @@ var pify = module.exports = function (obj, P, opts) {
 		} else {
 			ret[key] = x;
 		}
+	}
 
-		return ret;
-	}, ret);
+	for (var key in obj) { // eslint-disable-line guard-for-in
+		bindProperty(key);
+	}
+
+	return ret;
 };
 
 pify.all = pify;
