@@ -32,7 +32,7 @@ const processFn = (fn, opts) => {
 	};
 };
 
-const pify = module.exports = (obj, opts) => {
+module.exports = (obj, opts) => {
 	opts = Object.assign({
 		exclude: [/.+Sync$/],
 		promiseModule: Promise
@@ -57,5 +57,3 @@ const pify = module.exports = (obj, opts) => {
 		return ret;
 	}, ret);
 };
-
-pify.all = pify;
