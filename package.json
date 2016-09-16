@@ -10,7 +10,7 @@
     "url": "sindresorhus.com"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=4"
   },
   "scripts": {
     "test": "xo && ava && npm run optimization-test",
@@ -23,6 +23,7 @@
     "promise",
     "promises",
     "promisify",
+    "all",
     "denodify",
     "denodeify",
     "callback",
@@ -37,12 +38,16 @@
     "bind",
     "to",
     "async",
-    "es2015"
+    "es2015",
+    "bluebird"
   ],
   "devDependencies": {
     "ava": "*",
     "pinkie-promise": "^2.0.0",
-    "v8-natives": "0.0.2",
+    "v8-natives": "0.0.3",
     "xo": "*"
+  },
+  "xo": {
+    "esnext": true
   }
 }

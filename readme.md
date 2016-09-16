@@ -36,11 +36,11 @@ pify(fs).readFile('package.json', 'utf8').then(data => {
 
 ### pify(input, [options])
 
-Returns a promise wrapped version of the supplied function or module.
+Returns a `Promise` wrapped version of the supplied function or module.
 
 #### input
 
-Type: `function`, `object`
+Type: `Function` `Object`
 
 Callback-style function or module whose methods you want to promisify.
 
@@ -64,13 +64,13 @@ pify(request, {multiArgs: true})('https://sindresorhus.com').then(result => {
 
 ##### include
 
-Type: `array` of (`string`|`regex`)
+Type: `string[]` `RegExp[]`
 
 Methods in a module to promisify. Remaining methods will be left untouched.
 
 ##### exclude
 
-Type: `array` of (`string`|`regex`)<br>
+Type: `string[]` `RegExp[]`<br>
 Default: `[/.+Sync$/]`
 
 Methods in a module **not** to promisify. Methods with names ending with `'Sync'` are excluded by default.
@@ -80,7 +80,7 @@ Methods in a module **not** to promisify. Methods with names ending with `'Sync'
 Type: `boolean`<br>
 Default: `false`
 
-By default, if given module is a function itself, this function will be promisified. Turn this option on if you want to promisify only methods of the module.
+If given module is a function itself, it will be promisified. Turn this option on if you want to promisify only methods of the module.
 
 ```js
 const pify = require('pify');
@@ -107,7 +107,7 @@ if (promiseFn()) {
 
 ##### promiseModule
 
-Type: `function`
+Type: `Function`
 
 Custom promise module to use instead of the native one.
 
@@ -116,4 +116,4 @@ Check out [`pinkie-promise`](https://github.com/floatdrop/pinkie-promise) if you
 
 ## License
 
-MIT © [Sindre Sorhus](http://sindresorhus.com)
+MIT © [Sindre Sorhus](https://sindresorhus.com)

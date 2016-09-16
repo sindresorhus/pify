@@ -3,8 +3,6 @@ import test from 'ava';
 import pinkiePromise from 'pinkie-promise';
 import fn from './';
 
-global.Promise = pinkiePromise;
-
 const fixture = cb => setImmediate(() => cb(null, 'unicorn'));
 const fixture2 = (x, cb) => setImmediate(() => cb(null, x));
 const fixture3 = cb => setImmediate(() => cb(null, 'unicorn', 'rainbow'));
@@ -58,7 +56,7 @@ test('module support - doesn\'t transform *Sync methods by default', t => {
 
 test('module support - preserves non-function members', t => {
 	const module = {
-		method: function () {},
+		method: () => {},
 		nonMethod: 3
 	};
 
@@ -109,5 +107,5 @@ test('module support — function modules exclusion', t => {
 	});
 
 	t.is(typeof pModule.meow().then, 'function');
-	t.not(typeof pModule(function () {}).then, 'function');
+	t.not(typeof pModule(() => {}).then, 'function');
 });

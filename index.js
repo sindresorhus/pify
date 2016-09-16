@@ -1,22 +1,23 @@
 'use strict';
 
-var processFn = function (fn, P, opts) {
+const processFn = (fn, opts) => {
 	return function () {
-		var that = this;
-		var args = new Array(arguments.length);
+		const that = this;
+		const P = opts.promiseModule;
+		const args = new Array(arguments.length);
 
-		for (var i = 0; i < arguments.length; i++) {
+		for (let i = 0; i < arguments.length; i++) {
 			args[i] = arguments[i];
 		}
 
-		return new P(function (resolve, reject) {
+		return new P((resolve, reject) => {
 			args.push(function (err, result) {
 				if (err) {
 					reject(err);
 				} else if (opts.multiArgs) {
-					var results = new Array(arguments.length - 1);
+					const results = new Array(arguments.length - 1);
 
-					for (var i = 1; i < arguments.length; i++) {
+					for (let i = 1; i < arguments.length; i++) {
 						results[i - 1] = arguments[i];
 					}
 
@@ -31,33 +32,28 @@ var processFn = function (fn, P, opts) {
 	};
 };
 
-var pify = module.exports = function (obj, opts) {
-	opts = opts || {};
+const pify = module.exports = (obj, opts) => {
+	opts = Object.assign({
+		exclude: [/.+Sync$/],
+		promiseModule: Promise
+	}, opts);
 
-	var P = opts.promiseModule || Promise;
-	var exclude = opts.exclude || [/.+Sync$/];
-
-	var filter = function (key) {
-		var match = function (pattern) {
-			return typeof pattern === 'string' ? key === pattern : pattern.test(key);
-		};
-
-		return opts.include ? opts.include.some(match) : !exclude.some(match);
+	const filter = key => {
+		const match = pattern => typeof pattern === 'string' ? key === pattern : pattern.test(key);
+		return opts.include ? opts.include.some(match) : !opts.exclude.some(match);
 	};
 
-	var ret = typeof obj === 'function' ? function () {
+	const ret = typeof obj === 'function' ? function () {
 		if (opts.excludeMain) {
 			return obj.apply(this, arguments);
 		}
 
-		return processFn(obj, P, opts).apply(this, arguments);
+		return processFn(obj, opts).apply(this, arguments);
 	} : {};
 
-	return Object.keys(obj).reduce(function (ret, key) {
-		var x = obj[key];
-
-		ret[key] = typeof x === 'function' && filter(key) ? processFn(x, P, opts) : x;
-
+	return Object.keys(obj).reduce((ret, key) => {
+		const x = obj[key];
+		ret[key] = typeof x === 'function' && filter(key) ? processFn(x, opts) : x;
 		return ret;
 	}, ret);
 };
