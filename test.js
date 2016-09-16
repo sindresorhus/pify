@@ -37,7 +37,7 @@ test('pass argument', async t => {
 });
 
 test('custom Promise module', async t => {
-	t.is(await fn(fixture, pinkiePromise)(), 'unicorn');
+	t.is(await fn(fixture, {promiseModule: pinkiePromise})(), 'unicorn');
 });
 
 test('multiArgs option', async t => {

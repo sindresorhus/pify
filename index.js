@@ -31,13 +31,10 @@ var processFn = function (fn, P, opts) {
 	};
 };
 
-var pify = module.exports = function (obj, P, opts) {
-	if (typeof P !== 'function') {
-		opts = P;
-		P = Promise;
-	}
-
+var pify = module.exports = function (obj, opts) {
 	opts = opts || {};
+
+	var P = opts.promiseModule || Promise;
 	var exclude = opts.exclude || [/.+Sync$/];
 
 	var filter = function (key) {

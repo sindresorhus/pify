@@ -34,7 +34,7 @@ pify(fs).readFile('package.json', 'utf8').then(data => {
 
 ## API
 
-### pify(input, [promiseModule], [options])
+### pify(input, [options])
 
 Returns a promise wrapped version of the supplied function or module.
 
@@ -43,14 +43,6 @@ Returns a promise wrapped version of the supplied function or module.
 Type: `function`, `object`
 
 Callback-style function or module whose methods you want to promisify.
-
-#### promiseModule
-
-Type: `function`
-
-Custom promise module to use instead of the native one.
-
-Check out [`pinkie-promise`](https://github.com/floatdrop/pinkie-promise) if you need a tiny promise polyfill.
 
 #### options
 
@@ -112,6 +104,14 @@ if (promiseFn()) {
 	});
 }
 ```
+
+##### promiseModule
+
+Type: `function`
+
+Custom promise module to use instead of the native one.
+
+Check out [`pinkie-promise`](https://github.com/floatdrop/pinkie-promise) if you need a tiny promise polyfill.
 
 
 ## License
