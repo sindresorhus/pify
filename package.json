@@ -14,10 +14,14 @@
   },
   "scripts": {
     "test": "xo && ava && npm run optimization-test",
-    "optimization-test": "node --allow-natives-syntax optimization-test.js"
+    "test-node4": "xo && ava test.js && npm run optimization-test-index",
+    "optimization-test-index": "node --allow-natives-syntax optimization-test.js ./index",
+    "optimization-test-proxy": "node --allow-natives-syntax optimization-test.js ./proxy",
+    "optimization-test": "npm run optimization-test-index && npm run optimization-test-proxy"
   },
   "files": [
-    "index.js"
+    "index.js",
+    "proxy.js"
   ],
   "keywords": [
     "promise",

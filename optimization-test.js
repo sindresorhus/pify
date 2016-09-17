@@ -2,7 +2,9 @@
 'use strict';
 const assert = require('assert');
 const v8 = require('v8-natives');
-const pify = require('./');
+
+const args = process.argv.slice(2);
+const pify = require(args[0]); // eslint-disable-line import/no-dynamic-require
 
 function assertOptimized(fn, name) {
 	const status = v8.getOptimizationStatus(fn);

@@ -1,4 +1,9 @@
 language: node_js
-node_js:
-  - '6'
-  - '4'
+matrix:
+  include:
+    - node_js: '6'
+      env: NPM_TEST_SCRIPT=test
+    - node_js: '4'
+      env: NPM_TEST_SCRIPT=test-node4
+script:
+  - npm run $NPM_TEST_SCRIPT
