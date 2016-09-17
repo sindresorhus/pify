@@ -1,35 +1,33 @@
 'use strict';
 
-const processFn = (fn, opts) => {
-	return function () {
-		const that = this;
-		const P = opts.promiseModule;
-		const args = new Array(arguments.length);
+const processFn = (fn, opts) => function () {
+	const that = this;
+	const P = opts.promiseModule;
+	const args = new Array(arguments.length);
 
-		for (let i = 0; i < arguments.length; i++) {
-			args[i] = arguments[i];
-		}
+	for (let i = 0; i < arguments.length; i++) {
+		args[i] = arguments[i];
+	}
 
-		return new P((resolve, reject) => {
-			args.push(function (err, result) {
-				if (err) {
-					reject(err);
-				} else if (opts.multiArgs) {
-					const results = new Array(arguments.length - 1);
+	return new P((resolve, reject) => {
+		args.push(function (err, result) {
+			if (err) {
+				reject(err);
+			} else if (opts.multiArgs) {
+				const results = new Array(arguments.length - 1);
 
-					for (let i = 1; i < arguments.length; i++) {
-						results[i - 1] = arguments[i];
-					}
-
-					resolve(results);
-				} else {
-					resolve(result);
+				for (let i = 1; i < arguments.length; i++) {
+					results[i - 1] = arguments[i];
 				}
-			});
 
-			fn.apply(that, args);
+				resolve(results);
+			} else {
+				resolve(result);
+			}
 		});
-	};
+
+		fn.apply(that, args);
+	});
 };
 
 module.exports = (obj, opts) => {
