@@ -114,6 +114,12 @@ Custom promise module to use instead of the native one.
 Check out [`pinkie-promise`](https://github.com/floatdrop/pinkie-promise) if you need a tiny promise polyfill.
 
 
+## Related
+
+- [p-map](https://github.com/sindresorhus/p-map) - Map over promises concurrently
+- [More…](https://github.com/sindresorhus/promise-fun)
+
+
 ## License
 
 MIT © [Sindre Sorhus](https://sindresorhus.com)
