@@ -11,17 +11,23 @@ const processFn = (fn, opts) => function () {
 
 	return new P((resolve, reject) => {
 		args.push(function (err, result) {
-			if (err) {
-				reject(err);
-			} else if (opts.multiArgs) {
+			if (opts.multiArgs) {
 				const results = new Array(arguments.length - 1);
 
 				for (let i = 1; i < arguments.length; i++) {
 					results[i - 1] = arguments[i];
 				}
 
-				resolve(results);
+				if (err) {
+					results.unshift(err);
+					reject(results);
+				} else {
+					resolve(results);
+				}
 			} else {
+				if (err) {
+					reject(err);
+				}
 				resolve(result);
 			}
 		});
