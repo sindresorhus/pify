@@ -24,10 +24,9 @@ const processFn = (fn, opts) => function () {
 				} else {
 					resolve(results);
 				}
+			} else if (err) {
+				reject(err);
 			} else {
-				if (err) {
-					reject(err);
-				}
 				resolve(result);
 			}
 		});
