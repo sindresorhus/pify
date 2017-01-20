@@ -4,6 +4,7 @@ import pinkiePromise from 'pinkie-promise';
 import fn from './';
 
 const fixture = cb => setImmediate(() => cb(null, 'unicorn'));
+const fixture1 = cb => setImmediate(() => cb('error', 'unicorn', 'rainbow'));
 const fixture2 = (x, cb) => setImmediate(() => cb(null, x));
 const fixture3 = cb => setImmediate(() => cb(null, 'unicorn', 'rainbow'));
 const fixture4 = cb => setImmediate(() => {
@@ -30,6 +31,10 @@ test('main', async t => {
 	t.is(await fn(fixture)(), 'unicorn');
 });
 
+test('error', async t => {
+	t.is(await fn(fixture1)().catch(err => err), 'error');
+});
+
 test('pass argument', async t => {
 	t.is(await fn(fixture2)('rainbow'), 'rainbow');
 });
@@ -40,6 +45,10 @@ test('custom Promise module', async t => {
 
 test('multiArgs option', async t => {
 	t.deepEqual(await fn(fixture3, {multiArgs: true})(), ['unicorn', 'rainbow']);
+});
+
+test('multiArgs option — rejection', async t => {
+	t.deepEqual(await fn(fixture1, {multiArgs: true})().catch(err => err), ['error', 'unicorn', 'rainbow']);
 });
 
 test('wrap core method', async t => {
