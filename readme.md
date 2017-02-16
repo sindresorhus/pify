@@ -91,7 +91,7 @@ function fn() {
 
 fn.method = (data, callback) => {
 	setImmediate(() => {
-		callback(data, null);
+		callback(null, data);
 	});
 };
 
