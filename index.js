@@ -41,17 +41,25 @@ module.exports = (obj, opts) => {
 		return opts.include ? opts.include.some(match) : !opts.exclude.some(match);
 	};
 
-	const ret = typeof obj === 'function' ? function () {
-		if (opts.excludeMain) {
-			return obj.apply(this, arguments);
+	let ret = {};
+	if (typeof obj === 'function') {
+		ret = function () {
+			if (opts.excludeMain) {
+				return obj.apply(this, arguments);
+			}
+
+			return processFn(obj, opts).apply(this, arguments);
+		};
+	} else if (opts.inherited) {
+		ret = Object.create(Object.getPrototypeOf(obj));
+	}
+
+	for (const key in obj) {
+		if (opts.inherited || hasOwnProperty.call(obj, key)) {
+			const x = obj[key];
+			ret[key] = typeof x === 'function' && filter(key) ? processFn(x, opts) : x;
 		}
+	}
 
-		return processFn(obj, opts).apply(this, arguments);
-	} : {};
-
-	return Object.keys(obj).reduce((ret, key) => {
-		const x = obj[key];
-		ret[key] = typeof x === 'function' && filter(key) ? processFn(x, opts) : x;
-		return ret;
-	}, ret);
+	return ret;
 };
