@@ -1,7 +1,6 @@
 'use strict';
 
 const processFn = (fn, opts) => function () {
-	const that = this;
 	const P = opts.promiseModule;
 	const args = new Array(arguments.length);
 
@@ -31,7 +30,7 @@ const processFn = (fn, opts) => function () {
 			}
 		});
 
-		fn.apply(that, args);
+		fn.apply(this, args);
 	});
 };
 
