@@ -44,10 +44,7 @@
   "devDependencies": {
     "ava": "*",
     "pinkie-promise": "^2.0.0",
-    "v8-natives": "0.0.3",
+    "v8-natives": "^1.0.0",
     "xo": "*"
-  },
-  "xo": {
-    "esnext": true
   }
 }

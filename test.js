@@ -1,7 +1,7 @@
 import fs from 'fs';
 import test from 'ava';
 import pinkiePromise from 'pinkie-promise';
-import fn from './';
+import m from '.';
 
 const fixture = cb => setImmediate(() => cb(null, 'unicorn'));
 const fixture1 = cb => setImmediate(() => cb('error', 'unicorn', 'rainbow'));
@@ -27,40 +27,40 @@ const fixtureModule = {
 };
 
 test('main', async t => {
-	t.is(typeof fn(fixture)().then, 'function');
-	t.is(await fn(fixture)(), 'unicorn');
+	t.is(typeof m(fixture)().then, 'function');
+	t.is(await m(fixture)(), 'unicorn');
 });
 
 test('error', async t => {
-	t.is(await fn(fixture1)().catch(err => err), 'error');
+	t.is(await m(fixture1)().catch(err => err), 'error');
 });
 
 test('pass argument', async t => {
-	t.is(await fn(fixture2)('rainbow'), 'rainbow');
+	t.is(await m(fixture2)('rainbow'), 'rainbow');
 });
 
 test('custom Promise module', async t => {
-	t.is(await fn(fixture, {promiseModule: pinkiePromise})(), 'unicorn');
+	t.is(await m(fixture, {promiseModule: pinkiePromise})(), 'unicorn');
 });
 
 test('multiArgs option', async t => {
-	t.deepEqual(await fn(fixture3, {multiArgs: true})(), ['unicorn', 'rainbow']);
+	t.deepEqual(await m(fixture3, {multiArgs: true})(), ['unicorn', 'rainbow']);
 });
 
 test('multiArgs option — rejection', async t => {
-	t.deepEqual(await fn(fixture1, {multiArgs: true})().catch(err => err), ['error', 'unicorn', 'rainbow']);
+	t.deepEqual(await m(fixture1, {multiArgs: true})().catch(err => err), ['error', 'unicorn', 'rainbow']);
 });
 
 test('wrap core method', async t => {
-	t.is(JSON.parse(await fn(fs.readFile)('package.json')).name, 'pify');
+	t.is(JSON.parse(await m(fs.readFile)('package.json')).name, 'pify');
 });
 
 test('module support', async t => {
-	t.is(JSON.parse(await fn(fs).readFile('package.json')).name, 'pify');
+	t.is(JSON.parse(await m(fs).readFile('package.json')).name, 'pify');
 });
 
 test('module support - doesn\'t transform *Sync methods by default', t => {
-	t.is(JSON.parse(fn(fs).readFileSync('package.json')).name, 'pify');
+	t.is(JSON.parse(m(fs).readFileSync('package.json')).name, 'pify');
 });
 
 test('module support - preserves non-function members', t => {
@@ -69,11 +69,11 @@ test('module support - preserves non-function members', t => {
 		nonMethod: 3
 	};
 
-	t.deepEqual(Object.keys(module), Object.keys(fn(module)));
+	t.deepEqual(Object.keys(module), Object.keys(m(module)));
 });
 
 test('module support - transforms only members in options.include', t => {
-	const pModule = fn(fixtureModule, {
+	const pModule = m(fixtureModule, {
 		include: ['method1', 'method2']
 	});
 
@@ -83,7 +83,7 @@ test('module support - transforms only members in options.include', t => {
 });
 
 test('module support - doesn\'t transform members in options.exclude', t => {
-	const pModule = fn(fixtureModule, {
+	const pModule = m(fixtureModule, {
 		exclude: ['method3']
 	});
 
@@ -93,7 +93,7 @@ test('module support - doesn\'t transform members in options.exclude', t => {
 });
 
 test('module support - options.include over options.exclude', t => {
-	const pModule = fn(fixtureModule, {
+	const pModule = m(fixtureModule, {
 		include: ['method1', 'method2'],
 		exclude: ['method2', 'method3']
 	});
@@ -104,14 +104,14 @@ test('module support - options.include over options.exclude', t => {
 });
 
 test('module support — function modules', t => {
-	const pModule = fn(fixture4);
+	const pModule = m(fixture4);
 
 	t.is(typeof pModule().then, 'function');
 	t.is(typeof pModule.meow().then, 'function');
 });
 
 test('module support — function modules exclusion', t => {
-	const pModule = fn(fixture4, {
+	const pModule = m(fixture4, {
 		excludeMain: true
 	});
 

@@ -2,19 +2,20 @@
 'use strict';
 const assert = require('assert');
 const v8 = require('v8-natives');
-const pify = require('./');
+const pify = require('.');
 
 function assertOptimized(fn, name) {
 	const status = v8.getOptimizationStatus(fn);
 
 	switch (status) {
 		case 1:
-			// fn is optimized
+			// `fn` is optimized
+			console.log('pify is optimized');
 			return;
 		case 2:
 			assert(false, `${name} is not optimized (${status})`);
 		case 3:
-			// fn is always optimized
+			// `fn` is always optimized
 			return;
 		case 4:
 			assert(false, `${name} is never optimized (${status})`);
