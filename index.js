@@ -37,7 +37,7 @@ const processFn = (fn, opts) => function () {
 
 module.exports = (obj, opts) => {
 	opts = Object.assign({
-		exclude: [/.+Sync$/],
+		exclude: [/.+(Sync|Stream)$/],
 		promiseModule: Promise
 	}, opts);
 

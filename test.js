@@ -1,4 +1,5 @@
 import fs from 'fs';
+import stream from 'stream';
 import test from 'ava';
 import pinkiePromise from 'pinkie-promise';
 import m from '.';
@@ -61,6 +62,10 @@ test('module support', async t => {
 
 test('module support - doesn\'t transform *Sync methods by default', t => {
 	t.is(JSON.parse(m(fs).readFileSync('package.json')).name, 'pify');
+});
+
+test('module support - doesn\'t transform *Stream methods by default', t => {
+	t.true(m(fs).createReadStream('package.json') instanceof stream.Readable);
 });
 
 test('module support - preserves non-function members', t => {

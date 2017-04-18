@@ -71,7 +71,7 @@ Methods in a module to promisify. Remaining methods will be left untouched.
 ##### exclude
 
 Type: `string[]` `RegExp[]`<br>
-Default: `[/.+Sync$/]`
+Default: `[/.+(Sync|Stream)$/]`
 
 Methods in a module **not** to promisify. Methods with names ending with `'Sync'` are excluded by default.
 
