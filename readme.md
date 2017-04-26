@@ -116,6 +116,7 @@ Check out [`pinkie-promise`](https://github.com/floatdrop/pinkie-promise) if you
 
 ## Related
 
+- [p-event](https://github.com/sindresorhus/p-event) - Promisify an event by waiting for it to be emitted
 - [p-map](https://github.com/sindresorhus/p-map) - Map over promises concurrently
 - [More…](https://github.com/sindresorhus/promise-fun)
 
