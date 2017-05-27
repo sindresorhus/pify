@@ -123,3 +123,22 @@ test('module support — function modules exclusion', t => {
 	t.is(typeof pModule.meow().then, 'function');
 	t.not(typeof pModule(() => {}).then, 'function');
 });
+
+test('`errorFirst` option', async t => {
+	const fixture = (foo, cb) => {
+		cb(foo);
+	};
+
+	t.is(await m(fixture, {errorFirst: false})('🦄'), '🦄');
+});
+
+test('`errorFirst` option and `multiArgs`', async t => {
+	const fixture = (foo, bar, cb) => {
+		cb(foo, bar);
+	};
+
+	t.deepEqual(await m(fixture, {
+		errorFirst: false,
+		multiArgs: true
+	})('🦄', '🌈'), ['🦄', '🌈']);
+});

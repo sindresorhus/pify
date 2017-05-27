@@ -105,6 +105,13 @@ if (promiseFn()) {
 }
 ```
 
+##### errorFirst
+
+Type: `boolean`<br>
+Default: `true`
+
+Whether the callback has an error as the first argument. You'll want to set this to `false` if you're dealing with an API that doesn't have an error as the first argument, like `fs.exists()`, some browser APIs, Chrome Extension APIs, etc.
+
 ##### promiseModule
 
 Type: `Function`
