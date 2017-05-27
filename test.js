@@ -1,3 +1,4 @@
+import util from 'util';
 import fs from 'fs';
 import stream from 'stream';
 import test from 'ava';
@@ -26,6 +27,23 @@ const fixtureModule = {
 	method2: fixture,
 	method3: fixture5
 };
+
+function FixtureGrandparent() {}
+FixtureGrandparent.prototype.grandparentMethod1 = fixture;
+FixtureGrandparent.prototype.overriddenMethod1 = fixture;
+function FixtureParent() {}
+util.inherits(FixtureParent, FixtureGrandparent);
+FixtureParent.prototype.parentMethod1 = fixture;
+FixtureParent.prototype.overriddenMethod1 = fixture2;
+FixtureParent.prototype.overriddenValue1 = 2;
+function FixtureClass() {
+	this.instanceMethod1 = fixture;
+	this.instanceValue1 = 72;
+}
+util.inherits(FixtureClass, FixtureParent);
+FixtureClass.prototype.method1 = fixture;
+FixtureParent.prototype.overriddenValue1 = 4;
+FixtureClass.prototype.value1 = 'neo';
 
 test('main', async t => {
 	t.is(typeof m(fixture)().then, 'function');
@@ -141,4 +159,102 @@ test('`errorFirst` option and `multiArgs`', async t => {
 		errorFirst: false,
 		multiArgs: true
 	})('🦄', '🌈'), ['🦄', '🌈']);
+});
+
+test('class support - creates a copy', async t => {
+	const obj = {
+		x: 'foo',
+		y(cb) {
+			setImmediate(() => {
+				cb(null, this.x);
+			});
+		}
+	};
+
+	const pified = m(obj, {bind: false});
+	obj.x = 'bar';
+
+	t.is(await pified.y(), 'foo');
+	t.is(pified.x, 'foo');
+});
+
+test('class support — transforms inherited methods', t => {
+	const instance = new FixtureClass();
+	const pInstance = m(instance);
+
+	const flattened = {};
+	for (let prot = instance; prot; prot = Object.getPrototypeOf(prot)) {
+		Object.assign(flattened, prot);
+	}
+
+	const keys = Object.keys(flattened);
+	keys.sort();
+	const pKeys = Object.keys(pInstance);
+	pKeys.sort();
+	t.deepEqual(keys, pKeys);
+
+	t.is(instance.value1, pInstance.value1);
+	t.is(typeof pInstance.instanceMethod1().then, 'function');
+	t.is(typeof pInstance.method1().then, 'function');
+	t.is(typeof pInstance.parentMethod1().then, 'function');
+	t.is(typeof pInstance.grandparentMethod1().then, 'function');
+});
+
+test('class support — preserves prototype', t => {
+	const instance = new FixtureClass();
+	const pInstance = m(instance);
+
+	t.true(pInstance instanceof FixtureClass);
+});
+
+test('class support — respects inheritance order', async t => {
+	const instance = new FixtureClass();
+	const pInstance = m(instance);
+
+	t.is(instance.overriddenValue1, pInstance.overriddenValue1);
+	t.is(await pInstance.overriddenMethod1('rainbow'), 'rainbow');
+});
+
+test('class support - transforms only members in options.include, copies all', t => {
+	const instance = new FixtureClass();
+	const pInstance = m(instance, {
+		include: ['parentMethod1']
+	});
+
+	const flattened = {};
+	for (let prot = instance; prot; prot = Object.getPrototypeOf(prot)) {
+		Object.assign(flattened, prot);
+	}
+
+	const keys = Object.keys(flattened);
+	keys.sort();
+	const pKeys = Object.keys(pInstance);
+	pKeys.sort();
+	t.deepEqual(keys, pKeys);
+
+	t.is(typeof pInstance.parentMethod1().then, 'function');
+	t.not(typeof pInstance.method1(() => {}).then, 'function');
+	t.not(typeof pInstance.grandparentMethod1(() => {}).then, 'function');
+});
+
+test('class support - doesn\'t transform members in options.exclude', t => {
+	const instance = new FixtureClass();
+	const pInstance = m(instance, {
+		exclude: ['grandparentMethod1']
+	});
+
+	t.not(typeof pInstance.grandparentMethod1(() => {}).then, 'function');
+	t.is(typeof pInstance.parentMethod1().then, 'function');
+});
+
+test('class support - options.include over options.exclude', t => {
+	const instance = new FixtureClass();
+	const pInstance = m(instance, {
+		include: ['method1', 'parentMethod1'],
+		exclude: ['parentMethod1', 'grandparentMethod1']
+	});
+
+	t.is(typeof pInstance.method1().then, 'function');
+	t.is(typeof pInstance.parentMethod1().then, 'function');
+	t.not(typeof pInstance.grandparentMethod1(() => {}).then, 'function');
 });

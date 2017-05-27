@@ -62,17 +62,23 @@ module.exports = (obj, opts) => {
 		return opts.include ? opts.include.some(match) : !opts.exclude.some(match);
 	};
 
-	const ret = typeof obj === 'function' ? function () {
-		if (opts.excludeMain) {
-			return obj.apply(this, arguments);
-		}
+	let ret;
+	if (typeof obj === 'function') {
+		ret = function () {
+			if (opts.excludeMain) {
+				return obj.apply(this, arguments);
+			}
 
-		return processFn(obj, opts).apply(this, arguments);
-	} : {};
+			return processFn(obj, opts).apply(this, arguments);
+		};
+	} else {
+		ret = Object.create(Object.getPrototypeOf(obj));
+	}
 
-	return Object.keys(obj).reduce((ret, key) => {
+	for (const key in obj) { // eslint-disable-line guard-for-in
 		const x = obj[key];
 		ret[key] = typeof x === 'function' && filter(key) ? processFn(x, opts) : x;
-		return ret;
-	}, ret);
+	}
+
+	return ret;
 };
