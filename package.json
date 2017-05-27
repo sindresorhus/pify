@@ -38,6 +38,7 @@
     "bind",
     "to",
     "async",
+    "await",
     "es2015",
     "bluebird"
   ],

@@ -16,15 +16,13 @@ $ npm install --save pify
 const fs = require('fs');
 const pify = require('pify');
 
-// promisify a single function
-
+// Promisify a single function
 pify(fs.readFile)('package.json', 'utf8').then(data => {
 	console.log(JSON.parse(data).name);
 	//=> 'pify'
 });
 
-// or promisify all methods in a module
-
+// Promisify all methods in a module
 pify(fs).readFile('package.json', 'utf8').then(data => {
 	console.log(JSON.parse(data).name);
 	//=> 'pify'
@@ -95,7 +93,7 @@ fn.method = (data, callback) => {
 	});
 };
 
-// promisify methods but not fn()
+// Promisify methods but not `fn()`
 const promiseFn = pify(fn, {excludeMain: true});
 
 if (promiseFn()) {
