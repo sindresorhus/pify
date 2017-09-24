@@ -1,5 +1,12 @@
 'use strict';
 
+const promisify = require('util').promisify;
+
+const supportsPromisify = typeof promisify === 'function';
+const canUseNativePromisify = opts => {
+	return supportsPromisify && opts.promiseModule === Promise && opts.errorFirst && !opts.multiArgs;
+};
+
 const processFn = (fn, opts) => function () {
 	const P = opts.promiseModule;
 	const args = new Array(arguments.length);
@@ -57,6 +64,8 @@ module.exports = (obj, opts) => {
 		promiseModule: Promise
 	}, opts);
 
+	const useNative = canUseNativePromisify(opts);
+
 	const filter = key => {
 		const match = pattern => typeof pattern === 'string' ? key === pattern : pattern.test(key);
 		return opts.include ? opts.include.some(match) : !opts.exclude.some(match);
@@ -64,20 +73,29 @@ module.exports = (obj, opts) => {
 
 	let ret;
 	if (typeof obj === 'function') {
-		ret = function () {
-			if (opts.excludeMain) {
-				return obj.apply(this, arguments);
-			}
+		if (useNative && !opts.excludeMain) {
+			ret = promisify(obj);
+		} else {
+			ret = function () {
+				if (opts.excludeMain) {
+					return obj.apply(this, arguments);
+				}
 
-			return processFn(obj, opts).apply(this, arguments);
-		};
+				return processFn(obj, opts).apply(this, arguments);
+			};
+		}
 	} else {
 		ret = Object.create(Object.getPrototypeOf(obj));
 	}
 
 	for (const key in obj) { // eslint-disable-line guard-for-in
 		const x = obj[key];
-		ret[key] = typeof x === 'function' && filter(key) ? processFn(x, opts) : x;
+		const shouldProcess = typeof x === 'function' && filter(key);
+		if (shouldProcess) {
+			ret[key] = useNative ? promisify(x) : processFn(x, opts);
+		} else {
+			ret[key] = x;
+		}
 	}
 
 	return ret;
