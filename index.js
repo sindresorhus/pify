@@ -2,13 +2,13 @@
 
 const processFn = (fn, opts) => function () {
 	const P = opts.promiseModule;
-	const args = [].slice.apply(null, arguments);
+	const args = [].slice.apply(arguments);
 
 	return new P((resolve, reject) => {
 		if (opts.errorFirst) {
 			args.push(function (err, result) {
 				if (opts.multiArgs) {
-					const results = [].slice.apply(null, arguments);
+					const results = [].slice.apply(arguments);
 
 					if (err) {
 						reject(results);
@@ -25,7 +25,7 @@ const processFn = (fn, opts) => function () {
 		} else {
 			args.push(function (result) {
 				if (opts.multiArgs) {
-					const results = [].slice.apply(null, arguments);
+					const results = [].slice.apply(arguments);
 
 					resolve(results);
 				} else {
