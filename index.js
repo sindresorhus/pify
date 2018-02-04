@@ -9,41 +9,35 @@ const processFn = (fn, opts) => function () {
 	}
 
 	return new P((resolve, reject) => {
-		if (opts.errorFirst) {
-			args.push(function (err, result) {
-				if (opts.multiArgs) {
-					const results = new Array(arguments.length - 1);
+		if (opts.multiArgs) {
+			args.push(function (err) {
+				const results = new Array(arguments.length - 1);
 
-					for (let i = 1; i < arguments.length; i++) {
-						results[i - 1] = arguments[i];
-					}
+				for (let i = 0; i < arguments.length; i++) {
+					results[i] = arguments[i];
+				}
 
+				if (opts.errorFirst) {
 					if (err) {
-						results.unshift(err);
 						reject(results);
 					} else {
+						results.shift();
 						resolve(results);
 					}
-				} else if (err) {
+				} else {
+					resolve(results);
+				}
+			});
+		} else if (opts.errorFirst) {
+			args.push((err, result) => {
+				if (err) {
 					reject(err);
 				} else {
 					resolve(result);
 				}
 			});
 		} else {
-			args.push(function (result) {
-				if (opts.multiArgs) {
-					const results = new Array(arguments.length - 1);
-
-					for (let i = 0; i < arguments.length; i++) {
-						results[i] = arguments[i];
-					}
-
-					resolve(results);
-				} else {
-					resolve(result);
-				}
-			});
+			args.push(resolve);
 		}
 
 		fn.apply(this, args);
