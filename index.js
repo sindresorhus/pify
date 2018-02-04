@@ -2,26 +2,18 @@
 
 const processFn = (fn, opts) => function () {
 	const P = opts.promiseModule;
-	const args = new Array(arguments.length);
-
-	for (let i = 0; i < arguments.length; i++) {
-		args[i] = arguments[i];
-	}
+	const args = [].concat.apply([], arguments);
 
 	return new P((resolve, reject) => {
 		if (opts.errorFirst) {
 			args.push(function (err, result) {
 				if (opts.multiArgs) {
-					const results = new Array(arguments.length - 1);
-
-					for (let i = 1; i < arguments.length; i++) {
-						results[i - 1] = arguments[i];
-					}
+					const results = [].concat.apply([], arguments);
 
 					if (err) {
-						results.unshift(err);
 						reject(results);
 					} else {
+						results.shift();
 						resolve(results);
 					}
 				} else if (err) {
@@ -33,11 +25,7 @@ const processFn = (fn, opts) => function () {
 		} else {
 			args.push(function (result) {
 				if (opts.multiArgs) {
-					const results = new Array(arguments.length - 1);
-
-					for (let i = 0; i < arguments.length; i++) {
-						results[i] = arguments[i];
-					}
+					const results = [].concat.apply([], arguments);
 
 					resolve(results);
 				} else {
