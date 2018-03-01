@@ -52,13 +52,13 @@ test('main', async t => {
 
 test('throw error on invalid input', t => {
 	let error = t.throws(() => m());
-	t.is(error.message, 'Invalid object type "undefined"');
+	t.is(error.message, 'Expected `input` to be a `Function` or `Object`, got `undefined`');
 
 	error = t.throws(() => m(''));
-	t.is(error.message, 'Invalid object type "string"');
+	t.is(error.message, 'Expected `input` to be a `Function` or `Object`, got `string`');
 
 	error = t.throws(() => m(null));
-	t.is(error.message, 'Invalid object type "null"');
+	t.is(error.message, 'Expected `input` to be a `Function` or `Object`, got `null`');
 });
 
 test('error', async t => {

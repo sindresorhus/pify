@@ -59,7 +59,7 @@ module.exports = (obj, opts) => {
 
 	const objType = typeof obj;
 	if (objType === 'string' || objType === 'undefined' || obj === null) {
-		throw new TypeError(`Invalid object type "${obj === null ? 'null' : objType}"`);
+		throw new TypeError(`Expected \`input\` to be a \`Function\` or \`Object\`, got \`${obj === null ? 'null' : objType}\``);
 	}
 
 	const filter = key => {
