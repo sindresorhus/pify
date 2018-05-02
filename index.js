@@ -51,13 +51,18 @@ module.exports = (obj, opts) => {
 		promiseModule: Promise
 	}, opts);
 
+	const objType = typeof obj;
+	if (objType === 'string' || objType === 'undefined' || obj === null) {
+		throw new TypeError(`Expected \`input\` to be a \`Function\` or \`Object\`, got \`${obj === null ? 'null' : objType}\``);
+	}
+
 	const filter = key => {
 		const match = pattern => typeof pattern === 'string' ? key === pattern : pattern.test(key);
 		return opts.include ? opts.include.some(match) : !opts.exclude.some(match);
 	};
 
 	let ret;
-	if (typeof obj === 'function') {
+	if (objType === 'function') {
 		ret = function () {
 			if (opts.excludeMain) {
 				return obj.apply(this, arguments);

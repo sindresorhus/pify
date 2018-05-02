@@ -50,6 +50,17 @@ test('main', async t => {
 	t.is(await m(fixture)(), 'unicorn');
 });
 
+test('throw error on invalid input', t => {
+	let error = t.throws(() => m());
+	t.is(error.message, 'Expected `input` to be a `Function` or `Object`, got `undefined`');
+
+	error = t.throws(() => m(''));
+	t.is(error.message, 'Expected `input` to be a `Function` or `Object`, got `string`');
+
+	error = t.throws(() => m(null));
+	t.is(error.message, 'Expected `input` to be a `Function` or `Object`, got `null`');
+});
+
 test('error', async t => {
 	t.is(await m(fixture1)().catch(err => err), 'error');
 });
