@@ -1,37 +1,26 @@
 'use strict';
 
-const processFn = (fn, opts) => function () {
-	const P = opts.promiseModule;
-	const args = new Array(arguments.length);
-
-	for (let i = 0; i < arguments.length; i++) {
-		args[i] = arguments[i];
-	}
+const processFn = (fn, options) => function (...args) {
+	const P = options.promiseModule;
 
 	return new P((resolve, reject) => {
-		if (opts.multiArgs) {
-			args.push(function (err) {
-				const results = new Array(arguments.length - 1);
-
-				for (let i = 0; i < arguments.length; i++) {
-					results[i] = arguments[i];
-				}
-
-				if (opts.errorFirst) {
-					if (err) {
-						reject(results);
+		if (options.multiArgs) {
+			args.push((...result) => {
+				if (options.errorFirst) {
+					if (result[0]) {
+						reject(result);
 					} else {
-						results.shift();
-						resolve(results);
+						result.shift();
+						resolve(result);
 					}
 				} else {
-					resolve(results);
+					resolve(result);
 				}
 			});
-		} else if (opts.errorFirst) {
-			args.push((err, result) => {
-				if (err) {
-					reject(err);
+		} else if (options.errorFirst) {
+			args.push((error, result) => {
+				if (error) {
+					reject(error);
 				} else {
 					resolve(result);
 				}
@@ -44,39 +33,33 @@ const processFn = (fn, opts) => function () {
 	});
 };
 
-module.exports = (obj, opts) => {
-	opts = Object.assign({
+module.exports = (input, options) => {
+	options = Object.assign({
 		exclude: [/.+(Sync|Stream)$/],
 		errorFirst: true,
 		promiseModule: Promise
-	}, opts);
+	}, options);
 
-	const objType = typeof obj;
-	if (objType === 'string' || objType === 'undefined' || obj === null) {
-		throw new TypeError(`Expected \`input\` to be a \`Function\` or \`Object\`, got \`${obj === null ? 'null' : objType}\``);
+	const objType = typeof input;
+	if (!(input !== null && (objType === 'object' || objType === 'function'))) {
+		throw new TypeError(`Expected \`input\` to be a \`Function\` or \`Object\`, got \`${input === null ? 'null' : objType}\``);
 	}
 
 	const filter = key => {
 		const match = pattern => typeof pattern === 'string' ? key === pattern : pattern.test(key);
-		return opts.include ? opts.include.some(match) : !opts.exclude.some(match);
+		return options.include ? options.include.some(match) : !options.exclude.some(match);
 	};
 
 	let ret;
 	if (objType === 'function') {
-		ret = function () {
-			if (opts.excludeMain) {
-				return obj.apply(this, arguments);
-			}
-
-			return processFn(obj, opts).apply(this, arguments);
-		};
+		ret = (...args) => options.excludeMain ? input(...args) : processFn(input, options)(...args);
 	} else {
-		ret = Object.create(Object.getPrototypeOf(obj));
+		ret = Object.create(Object.getPrototypeOf(input));
 	}
 
-	for (const key in obj) { // eslint-disable-line guard-for-in
-		const x = obj[key];
-		ret[key] = typeof x === 'function' && filter(key) ? processFn(x, opts) : x;
+	for (const key in input) { // eslint-disable-line guard-for-in
+		const property = input[key];
+		ret[key] = typeof property === 'function' && filter(key) ? processFn(property, options) : property;
 	}
 
 	return ret;

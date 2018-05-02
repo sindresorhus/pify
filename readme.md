@@ -6,7 +6,7 @@
 ## Install
 
 ```
-$ npm install --save pify
+$ npm install pify
 ```
 
 
