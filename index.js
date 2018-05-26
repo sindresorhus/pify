@@ -1,9 +1,9 @@
 'use strict';
 
-const processFn = (fn, options) => function (...args) {
+const processFn = (fn, options) => async function (...args) {
 	const P = options.promiseModule;
 
-	return new P(async (resolve, reject) => {
+	return new P((resolve, reject) => {
 		if (options.multiArgs) {
 			args.push((...result) => {
 				if (options.errorFirst) {

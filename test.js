@@ -93,6 +93,10 @@ test('wrap twice still works', async t => {
 	t.is(JSON.parse(await m(m(fs.readFile))('package.json')).name, 'pify');
 });
 
+test('wrap object then function still works', async t => {
+	t.is(JSON.parse(await m(m(fs).readFile)('package.json')).name, 'pify');
+});
+
 test('module support', async t => {
 	t.is(JSON.parse(await m(fs).readFile('package.json')).name, 'pify');
 });
