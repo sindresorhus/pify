@@ -2,9 +2,6 @@
 
 const processFn = (fn, options) => function (...args) {
 	const P = options.promiseModule;
-	if (fn.constructor && fn.constructor.name === 'AsyncFunction') {
-		return fn(...args);
-	}
 
 	return new P(async (resolve, reject) => {
 		if (options.multiArgs) {
@@ -55,14 +52,14 @@ module.exports = (input, options) => {
 
 	let ret;
 	if (objType === 'function') {
-		ret = async (...args) => options.excludeMain ? input(...args) : processFn(input, options)(...args);
+		ret = async (...args) => (input.constructor !== undefined && input.constructor.name === 'AsyncFunction') || options.excludeMain ? input(...args) : processFn(input, options)(...args);
 	} else {
 		ret = Object.create(Object.getPrototypeOf(input));
 	}
 
 	for (const key in input) { // eslint-disable-line guard-for-in
 		const property = input[key];
-		ret[key] = typeof property === 'function' && filter(key) ? processFn(property, options) : property;
+		ret[key] = typeof property === 'function' && (property.constructor === undefined || property.constructor.name !== 'AsyncFunction') && filter(key) ? processFn(property, options) : property;
 	}
 
 	return ret;
