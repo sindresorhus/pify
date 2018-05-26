@@ -3,7 +3,7 @@
 const processFn = (fn, options) => function (...args) {
 	const P = options.promiseModule;
 
-	return new P((resolve, reject) => {
+	return new P(async (resolve, reject) => {
 		if (options.multiArgs) {
 			args.push((...result) => {
 				if (options.errorFirst) {
@@ -52,7 +52,7 @@ module.exports = (input, options) => {
 
 	let ret;
 	if (objType === 'function') {
-		ret = (...args) => options.excludeMain ? input(...args) : processFn(input, options)(...args);
+		ret = async (...args) => options.excludeMain ? input(...args) : processFn(input, options)(...args);
 	} else {
 		ret = Object.create(Object.getPrototypeOf(input));
 	}
