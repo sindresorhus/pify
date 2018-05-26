@@ -2,6 +2,9 @@
 
 const processFn = (fn, options) => function (...args) {
 	const P = options.promiseModule;
+	if (fn.constructor && fn.constructor.name === 'AsyncFunction') {
+		return fn(...args);
+	}
 
 	return new P(async (resolve, reject) => {
 		if (options.multiArgs) {

@@ -85,6 +85,14 @@ test('wrap core method', async t => {
 	t.is(JSON.parse(await m(fs.readFile)('package.json')).name, 'pify');
 });
 
+test('result is AsyncFunction', t => {
+	t.is(m(fs.readFile).constructor.name, 'AsyncFunction');
+});
+
+test('wrap twice still works', async t => {
+	t.is(JSON.parse(await m(m(fs.readFile))('package.json')).name, 'pify');
+});
+
 test('module support', async t => {
 	t.is(JSON.parse(await m(fs).readFile('package.json')).name, 'pify');
 });
@@ -150,7 +158,7 @@ test('module support — function modules exclusion', t => {
 	});
 
 	t.is(typeof pModule.meow().then, 'function');
-	t.not(typeof pModule(() => {}).then, 'function');
+	t.not(typeof pModule(() => {}).then, 'AsyncFunction');
 });
 
 test('`errorFirst` option', async t => {
@@ -269,3 +277,4 @@ test('class support - options.include over options.exclude', t => {
 	t.is(typeof pInstance.parentMethod1().then, 'function');
 	t.not(typeof pInstance.grandparentMethod1(() => {}).then, 'function');
 });
+
