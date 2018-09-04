@@ -52,7 +52,7 @@ module.exports = (input, options) => {
 
 	let ret;
 	if (objType === 'function') {
-		ret = (...args) => options.excludeMain ? input(...args) : processFn(input, options)(...args);
+		ret = options.excludeMain ? input : processFn(input, options);
 	} else {
 		ret = Object.create(Object.getPrototypeOf(input));
 	}
