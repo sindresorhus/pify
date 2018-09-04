@@ -62,7 +62,7 @@ test('throw error on invalid input', t => {
 });
 
 test('error', async t => {
-	t.is(await m(fixture1)().catch(err => err), 'error');
+	t.is(await m(fixture1)().catch(error => error), 'error');
 });
 
 test('pass argument', async t => {
@@ -78,7 +78,7 @@ test('multiArgs option', async t => {
 });
 
 test('multiArgs option — rejection', async t => {
-	t.deepEqual(await m(fixture1, {multiArgs: true})().catch(err => err), ['error', 'unicorn', 'rainbow']);
+	t.deepEqual(await m(fixture1, {multiArgs: true})().catch(error => error), ['error', 'unicorn', 'rainbow']);
 });
 
 test('wrap core method', async t => {
