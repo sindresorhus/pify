@@ -43,9 +43,9 @@
 		"bluebird"
 	],
 	"devDependencies": {
-		"ava": "*",
+		"ava": "^0.25.0",
 		"pinkie-promise": "^2.0.0",
 		"v8-natives": "^1.1.0",
-		"xo": "*"
+		"xo": "^0.23.0"
 	}
 }

@@ -38,7 +38,7 @@ sut.unicorn().then(() => {
 	return sut.unicorn().then(() => {
 		assertOptimized(sut.unicorn, 'unicorn');
 	});
-}).catch(err => {
-	console.error(err.stack);
+}).catch(error => {
+	console.error(error.stack);
 	process.exit(1); // eslint-disable-line unicorn/no-process-exit
 });
