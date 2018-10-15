@@ -1,36 +1,49 @@
 'use strict';
 
-const processFn = (fn, options) => function (...args) {
-	const P = options.promiseModule;
+const nativePromisify = require('util').promisify;
 
-	return new P((resolve, reject) => {
-		if (options.multiArgs) {
-			args.push((...result) => {
-				if (options.errorFirst) {
-					if (result[0]) {
-						reject(result);
+const processFn = (fn, options) => {
+	if (
+		nativePromisify && // Util.promisify supported
+		options.native !== false && // Native not disabled with options
+		!options.multiArgs && // Not `multiArgs` mode
+		options.errorFirst !== false // Is `errorFirst` mode
+	) {
+		return nativePromisify(fn);
+	}
+
+	return function (...args) {
+		const P = options.promiseModule;
+
+		return new P((resolve, reject) => {
+			if (options.multiArgs) {
+				args.push((...result) => {
+					if (options.errorFirst) {
+						if (result[0]) {
+							reject(result);
+						} else {
+							result.shift();
+							resolve(result);
+						}
 					} else {
-						result.shift();
 						resolve(result);
 					}
-				} else {
-					resolve(result);
-				}
-			});
-		} else if (options.errorFirst) {
-			args.push((error, result) => {
-				if (error) {
-					reject(error);
-				} else {
-					resolve(result);
-				}
-			});
-		} else {
-			args.push(resolve);
-		}
+				});
+			} else if (options.errorFirst) {
+				args.push((error, result) => {
+					if (error) {
+						reject(error);
+					} else {
+						resolve(result);
+					}
+				});
+			} else {
+				args.push(resolve);
+			}
 
-		fn.apply(this, args);
-	});
+			fn.apply(this, args);
+		});
+	};
 };
 
 module.exports = (input, options) => {
