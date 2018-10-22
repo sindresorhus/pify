@@ -42,6 +42,10 @@ function FixtureClass() {
 }
 util.inherits(FixtureClass, FixtureParent);
 FixtureClass.prototype.method1 = fixture;
+FixtureClass.prototype.method2Cb = function (cb) {
+	setImmediate(() => cb(null, this.instanceValue1));
+};
+FixtureClass.prototype.method2Async = m(FixtureClass.prototype.method2Cb);
 FixtureParent.prototype.overriddenValue1 = 4;
 FixtureClass.prototype.value1 = 'neo';
 
@@ -268,4 +272,9 @@ test('class support - options.include over options.exclude', t => {
 	t.is(typeof pInstance.method1().then, 'function');
 	t.is(typeof pInstance.parentMethod1().then, 'function');
 	t.not(typeof pInstance.grandparentMethod1(() => {}).then, 'function');
+});
+
+test('promisify prototype function', async t => {
+	const instance = new FixtureClass();
+	t.is(await instance.method2Async(), 72);
 });
