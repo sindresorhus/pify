@@ -1,4 +1,4 @@
-# pify [![Build Status](https://travis-ci.org/sindresorhus/pify.svg?branch=master)](https://travis-ci.org/sindresorhus/pify)
+# pify [![Build Status](https://travis-ci.org/sindresorhus/pify.svg?branch=master)](https://travis-ci.org/sindresorhus/pify) [![pify Dev Token](https://badge.devtoken.rocks/pify)](https://devtoken.rocks/package/pify)
 
 > Promisify a callback-style function
 
