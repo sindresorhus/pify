@@ -133,6 +133,11 @@ Custom promise module to use instead of the native one.
 Check out [`pinkie-promise`](https://github.com/floatdrop/pinkie-promise) if you need a tiny promise polyfill.
 
 
+## Security
+
+To report a security vulnerability, please use the [Tidelift security contact](https://tidelift.com/security). Tidelift will coordinate the fix and disclosure.
+
+
 ## Related
 
 - [p-event](https://github.com/sindresorhus/p-event) - Promisify an event by waiting for it to be emitted
