@@ -1,13 +1,7 @@
 'use strict';
 
-const processFn = (fn, opts) => function () {
-	const that = this;
+const processFn = (fn, opts) => function (...args) {
 	const P = opts.promiseModule;
-	const args = new Array(arguments.length);
-
-	for (let i = 0; i < arguments.length; i++) {
-		args[i] = arguments[i];
-	}
 
 	return new P((resolve, reject) => {
 		args.push((err, result, ...results) => {
@@ -20,7 +14,7 @@ const processFn = (fn, opts) => function () {
 			}
 		});
 
-		fn.apply(that, args);
+		fn.apply(this, args);
 	});
 };
 
