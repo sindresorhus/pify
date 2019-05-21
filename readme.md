@@ -52,7 +52,7 @@ Returns a `Promise` wrapped version of the supplied function or module.
 
 #### input
 
-Type: `Function` `Object`
+Type: `Function | object`
 
 Callback-style function or module whose methods you want to promisify.
 
@@ -76,13 +76,13 @@ pify(request, {multiArgs: true})('https://sindresorhus.com').then(result => {
 
 ##### include
 
-Type: `string[]` `RegExp[]`
+Type: `Array<string | RegExp>`
 
 Methods in a module to promisify. Remaining methods will be left untouched.
 
 ##### exclude
 
-Type: `string[]` `RegExp[]`<br>
+Type: `Array<string | RegExp>`<br>
 Default: `[/.+(Sync|Stream)$/]`
 
 Methods in a module **not** to promisify. Methods with names ending with `'Sync'` are excluded by default.
