@@ -2,20 +2,6 @@
 
 > Promisify a callback-style function
 
----
-
-<div align="center">
-	<b>
-		<a href="https://tidelift.com/subscription/pkg/npm-pify?utm_source=npm-pify&utm_medium=referral&utm_campaign=readme">Get professional support for 'pify' with a Tidelift subscription</a>
-	</b>
-	<br>
-	<sub>
-		Tidelift helps make open source sustainable for maintainers while giving companies<br>assurances about security, maintenance, and licensing for their dependencies.
-	</sub>
-</div>
-
----
-
 
 ## Install
 
@@ -46,7 +32,7 @@ pify(fs).readFile('package.json', 'utf8').then(data => {
 
 ## API
 
-### pify(input, [options])
+### pify(input, options?)
 
 Returns a `Promise` wrapped version of the supplied function or module.
 
@@ -133,11 +119,6 @@ Custom promise module to use instead of the native one.
 Check out [`pinkie-promise`](https://github.com/floatdrop/pinkie-promise) if you need a tiny promise polyfill.
 
 
-## Security
-
-To report a security vulnerability, please use the [Tidelift security contact](https://tidelift.com/security). Tidelift will coordinate the fix and disclosure.
-
-
 ## Related
 
 - [p-event](https://github.com/sindresorhus/p-event) - Promisify an event by waiting for it to be emitted
@@ -145,6 +126,14 @@ To report a security vulnerability, please use the [Tidelift security contact](h
 - [More…](https://github.com/sindresorhus/promise-fun)
 
 
-## License
+---
 
-MIT © [Sindre Sorhus](https://sindresorhus.com)
+<div align="center">
+	<b>
+		<a href="https://tidelift.com/subscription/pkg/npm-pify?utm_source=npm-pify&utm_medium=referral&utm_campaign=readme">Get professional support for 'pify' with a Tidelift subscription</a>
+	</b>
+	<br>
+	<sub>
+		Tidelift helps make open source sustainable for maintainers while giving companies<br>assurances about security, maintenance, and licensing for their dependencies.
+	</sub>
+</div>
