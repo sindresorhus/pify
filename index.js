@@ -50,19 +50,43 @@ module.exports = (input, options) => {
 		return options.include ? options.include.some(match) : !options.exclude.some(match);
 	};
 
-	let ret;
-	if (objType === 'function') {
-		ret = function (...args) {
-			return options.excludeMain ? input(...args) : processFn(input, options).apply(this, args);
-		};
-	} else {
-		ret = Object.create(Object.getPrototypeOf(input));
-	}
+	const cache = new WeakMap();
 
-	for (const key in input) { // eslint-disable-line guard-for-in
-		const property = input[key];
-		ret[key] = typeof property === 'function' && filter(key) ? processFn(property, options) : property;
-	}
+	const handler = {
+		apply(target, thisArg, args) {
+			const cached = cache.get(target);
 
-	return ret;
+			if (cached) {
+				return cached.apply(thisArg, args);
+			}
+
+			const pified = options.excludeMain ? target : processFn(target, options);
+			cache.set(target, pified);
+			return pified.apply(thisArg, args);
+		},
+
+		get(target, key) {
+			const prop = target[key];
+
+			if (!filter(key)) {
+				return prop;
+			}
+
+			const cached = cache.get(prop);
+
+			if (cached) {
+				return cached;
+			}
+
+			if (typeof prop === 'function') {
+				const pified = processFn(prop, options);
+				cache.set(prop, pified);
+				return pified;
+			}
+
+			return prop;
+		}
+	};
+
+	return new Proxy(input, handler);
 };

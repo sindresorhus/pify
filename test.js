@@ -176,7 +176,7 @@ test('`errorFirst` option and `multiArgs`', async t => {
 	})('🦄', '🌈'), ['🦄', '🌈']);
 });
 
-test('class support - creates a copy', async t => {
+test('class support - does not create a copy', async t => {
 	const obj = {
 		x: 'foo',
 		y(cb) {
@@ -186,27 +186,16 @@ test('class support - creates a copy', async t => {
 		}
 	};
 
-	const pified = m(obj, {bind: false});
+	const pified = m(obj);
 	obj.x = 'bar';
 
-	t.is(await pified.y(), 'foo');
-	t.is(pified.x, 'foo');
+	t.is(await pified.y(), 'bar');
+	t.is(pified.x, 'bar');
 });
 
 test('class support — transforms inherited methods', t => {
 	const instance = new FixtureClass();
 	const pInstance = m(instance);
-
-	const flattened = {};
-	for (let prot = instance; prot; prot = Object.getPrototypeOf(prot)) {
-		Object.assign(flattened, prot);
-	}
-
-	const keys = Object.keys(flattened);
-	keys.sort();
-	const pKeys = Object.keys(pInstance);
-	pKeys.sort();
-	t.deepEqual(keys, pKeys);
 
 	t.is(instance.value1, pInstance.value1);
 	t.is(typeof pInstance.instanceMethod1().then, 'function');
@@ -235,17 +224,6 @@ test('class support - transforms only members in options.include, copies all', t
 	const pInstance = m(instance, {
 		include: ['parentMethod1']
 	});
-
-	const flattened = {};
-	for (let prot = instance; prot; prot = Object.getPrototypeOf(prot)) {
-		Object.assign(flattened, prot);
-	}
-
-	const keys = Object.keys(flattened);
-	keys.sort();
-	const pKeys = Object.keys(pInstance);
-	pKeys.sort();
-	t.deepEqual(keys, pKeys);
 
 	t.is(typeof pInstance.parentMethod1().then, 'function');
 	t.not(typeof pInstance.method1(() => {}).then, 'function');
