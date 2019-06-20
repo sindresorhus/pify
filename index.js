@@ -33,6 +33,8 @@ const processFn = (fn, options) => function (...args) {
 	});
 };
 
+const filterCache = new WeakMap();
+
 module.exports = (input, options) => {
 	options = Object.assign({
 		exclude: [/.+(Sync|Stream)$/],
@@ -45,9 +47,22 @@ module.exports = (input, options) => {
 		throw new TypeError(`Expected \`input\` to be a \`Function\` or \`Object\`, got \`${input === null ? 'null' : objType}\``);
 	}
 
-	const filter = key => {
+	const filter = (target, key) => {
+		let cached = filterCache.get(target);
+
+		if (!cached) {
+			cached = {};
+			filterCache.set(target, cached);
+		}
+
+		if (key in cached) {
+			return cached[key];
+		}
+
 		const match = pattern => typeof pattern === 'string' ? key === pattern : pattern.test(key);
-		return options.include ? options.include.some(match) : !options.exclude.some(match);
+		const shouldFilter = options.include ? options.include.some(match) : !options.exclude.some(match);
+		cached[key] = shouldFilter;
+		return shouldFilter;
 	};
 
 	const cache = new WeakMap();
@@ -68,7 +83,7 @@ module.exports = (input, options) => {
 		get(target, key) {
 			const prop = target[key];
 
-			if (!filter(key)) {
+			if (!filter(target, key)) {
 				return prop;
 			}
 
