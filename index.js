@@ -29,7 +29,7 @@ const processFn = (fn, options) => function (...args) {
 			args.push(resolve);
 		}
 
-		fn.apply(this, args);
+		Reflect.apply(fn, this, args);
 	});
 };
 
@@ -72,12 +72,12 @@ module.exports = (input, options) => {
 			const cached = cache.get(target);
 
 			if (cached) {
-				return cached.apply(thisArg, args);
+				return Reflect.apply(cached, thisArg, args);
 			}
 
 			const pified = options.excludeMain ? target : processFn(target, options);
 			cache.set(target, pified);
-			return pified.apply(thisArg, args);
+			return Reflect.apply(pified, thisArg, args);
 		},
 
 		get(target, key) {
