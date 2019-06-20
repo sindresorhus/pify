@@ -256,3 +256,16 @@ test('promisify prototype function', async t => {
 	const instance = new FixtureClass();
 	t.is(await instance.method2Async(), 72);
 });
+
+test('method mutation', async t => {
+	const obj = {
+		foo(cb) {
+			setImmediate(() => cb(null, 'original'));
+		}
+	};
+	const pified = m(obj);
+
+	obj.foo = cb => setImmediate(() => cb(null, 'new'));
+
+	t.is(await pified.foo(), 'new');
+});
