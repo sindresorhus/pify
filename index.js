@@ -59,7 +59,7 @@ module.exports = (input, options) => {
 			return cached[key];
 		}
 
-		const match = pattern => typeof pattern === 'string' ? key === pattern : pattern.test(key);
+		const match = pattern => (typeof pattern === 'string' || typeof key === 'symbol') ? key === pattern : pattern.test(key);
 		const shouldFilter = options.include ? options.include.some(match) : !options.exclude.some(match);
 		cached[key] = shouldFilter;
 		return shouldFilter;

@@ -269,3 +269,11 @@ test('method mutation', async t => {
 
 	t.is(await pified.foo(), 'new');
 });
+
+test('symbol keys', async t => {
+	const sym = Symbol('sym');
+	const obj = {[sym]: cb => setImmediate(cb)};
+	const pified = m(obj);
+	await pified[sym]();
+	t.pass();
+});
