@@ -16,17 +16,17 @@ $ npm install pify
 const fs = require('fs');
 const pify = require('pify');
 
-// Promisify a single function
-pify(fs.readFile)('package.json', 'utf8').then(data => {
+(async () => {
+	// Promisify a single function
+	const data = await pify(fs.readFile)('package.json', 'utf8');
 	console.log(JSON.parse(data).name);
 	//=> 'pify'
-});
 
-// Promisify all methods in a module
-pify(fs).readFile('package.json', 'utf8').then(data => {
-	console.log(JSON.parse(data).name);
+	// Promisify all methods in a module
+	const data2 = await pify(fs).readFile('package.json', 'utf8');
+	console.log(JSON.parse(data2).name);
 	//=> 'pify'
-});
+})();
 ```
 
 
@@ -44,6 +44,8 @@ Callback-style function or module whose methods you want to promisify.
 
 #### options
 
+Type: `object`
+
 ##### multiArgs
 
 Type: `boolean`<br>
@@ -55,9 +57,11 @@ By default, the promisified function will only return the second argument from t
 const request = require('request');
 const pify = require('pify');
 
-pify(request, {multiArgs: true})('https://sindresorhus.com').then(result => {
-	const [httpResponse, body] = result;
-});
+const pRequest = pify(request, {multiArgs: true});
+
+(async () => {
+	const [httpResponse, body] = await pRequest('https://sindresorhus.com');
+})();
 ```
 
 ##### include
@@ -78,7 +82,7 @@ Methods in a module **not** to promisify. Methods with names ending with `'Sync'
 Type: `boolean`<br>
 Default: `false`
 
-If given module is a function itself, it will be promisified. Turn this option on if you want to promisify only methods of the module.
+If the given module is a function itself, it will be promisified. Enable this option if you want to promisify only methods of the module.
 
 ```js
 const pify = require('pify');
@@ -93,14 +97,14 @@ fn.method = (data, callback) => {
 	});
 };
 
-// Promisify methods but not `fn()`
-const promiseFn = pify(fn, {excludeMain: true});
+(async () => {
+	// Promisify methods but not `fn()`
+	const promiseFn = pify(fn, {excludeMain: true});
 
-if (promiseFn()) {
-	promiseFn.method('hi').then(data => {
-		console.log(data);
-	});
-}
+	if (promiseFn()) {
+		console.log(await promiseFn.method('hi'));
+	}
+})();
 ```
 
 ##### errorFirst
@@ -116,7 +120,16 @@ Type: `Function`
 
 Custom promise module to use instead of the native one.
 
-Check out [`pinkie-promise`](https://github.com/floatdrop/pinkie-promise) if you need a tiny promise polyfill.
+
+## FAQ
+
+#### How is this different from Node.js's [`util.promisify`](https://nodejs.org/api/util.html#util_util_promisify_original)?
+
+- Pify existed long before `util.promisify`.
+- Pify is [faster](https://github.com/sindresorhus/pify/issues/41#issuecomment-429988506).
+- Pify supports wrapping a whole module/object, not just a specific method.
+- Pify has useful options like the ability to handle multiple arguments (`multiArgs`).
+- Pify does not have [magic behavior](https://nodejs.org/api/util.html#util_custom_promisified_functions) for certain Node.js methods and instead focuses on predictability.
 
 
 ## Related
