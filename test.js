@@ -271,9 +271,10 @@ test('method mutation', async t => {
 });
 
 test('symbol keys', async t => {
-	const sym = Symbol('sym');
-	const obj = {[sym]: cb => setImmediate(cb)};
-	const pified = m(obj);
-	await pified[sym]();
-	t.pass();
+	await t.notThrowsAsync(async () => {
+		const sym = Symbol('sym');
+		const obj = {[sym]: cb => setImmediate(cb)};
+		const pified = m(obj);
+		await pified[sym]();
+	});
 });
