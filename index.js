@@ -60,7 +60,10 @@ module.exports = (input, options) => {
 		}
 
 		const match = pattern => (typeof pattern === 'string' || typeof key === 'symbol') ? key === pattern : pattern.test(key);
-		const shouldFilter = options.include ? options.include.some(match) : !options.exclude.some(match);
+		const desc = Reflect.getOwnPropertyDescriptor(target, key);
+		const writableOrConfigurable = (desc === undefined || desc.writable || desc.configurable);
+		const included = options.include ? options.include.some(match) : !options.exclude.some(match);
+		const shouldFilter = included && writableOrConfigurable;
 		cached[key] = shouldFilter;
 		return shouldFilter;
 	};

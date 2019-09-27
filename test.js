@@ -278,3 +278,19 @@ test('symbol keys', async t => {
 		await pified[sym]();
 	});
 });
+
+// [[Get]] for proxy objects enforces the following invariants: The value
+// reported for a property must be the same as the value of the corresponding
+// target object property if the target object property is a non-writable,
+// non-configurable own data property.
+test('non-writable non-configurable property', t => {
+	const obj = {};
+	Object.defineProperty(obj, 'prop', {
+		value: cb => setImmediate(cb),
+		writable: false,
+		configurable: false
+	});
+
+	const pified = m(obj);
+	t.notThrows(() => Reflect.get(pified, 'prop'));
+});
