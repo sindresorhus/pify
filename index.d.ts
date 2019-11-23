@@ -9,14 +9,16 @@ interface PifyOptions {
     promiseModule?: PromiseConstructor
 }
 
-type LastParameter<F extends (...args: any) => any> = Tuple.Last<Parameters<F>>;
-type CallbackFunction<F extends (...args: any) => any> =
-    LastParameter<F> extends (...args: any) => any ? LastParameter<F> : never;
+type AnyFunction = (...args: any) => any
+type LastParameter<F extends AnyFunction> = Tuple.Last<Parameters<F>>;
+type CallbackParameters<F extends AnyFunction> =
+    LastParameter<F> extends AnyFunction ? Parameters<LastParameter<F>> : never;
+type PifiedFunction<F extends AnyFunction, R> = (...args: Tuple.Pop<Parameters<F>>) => Promise<R>
 
-declare function pify<F extends (...args: any) => any>(input: F, options?: PifyOptions & { multiArgs: true, errorFirst: false }): (...args: Tuple.Pop<Parameters<F>>) => Promise<Parameters<CallbackFunction<F>>>;
-declare function pify<F extends (...args: any) => any>(input: F, options?: PifyOptions & { multiArgs: true }): (...args: Tuple.Pop<Parameters<F>>) => Promise<Tuple.Tail<Parameters<CallbackFunction<F>>>>;
-declare function pify<F extends (...args: any) => any>(input: F, options?: PifyOptions & { errorFirst: false }): (...args: Tuple.Pop<Parameters<F>>) => Promise<Parameters<CallbackFunction<F>>[0]>;
-declare function pify<F extends (...args: any) => any>(input: F, options?: PifyOptions): (...args: Tuple.Pop<Parameters<F>>) => Promise<Parameters<CallbackFunction<F>>[1]>;
+declare function pify<F extends AnyFunction>(input: F, options?: PifyOptions & { multiArgs: true, errorFirst: false }): PifiedFunction<F, CallbackParameters<F>>;
+declare function pify<F extends AnyFunction>(input: F, options?: PifyOptions & { multiArgs: true }): PifiedFunction<F, Tuple.Tail<CallbackParameters<F>>>;
+declare function pify<F extends AnyFunction>(input: F, options?: PifyOptions & { errorFirst: false }): PifiedFunction<F, CallbackParameters<F>[0]>;
+declare function pify<F extends AnyFunction>(input: F, options?: PifyOptions): PifiedFunction<F, CallbackParameters<F>[1]>;
 declare function pify(input: {[key: string]: unknown}, options?: PifyOptions): {[key: string]: any};
 
 export = pify;
