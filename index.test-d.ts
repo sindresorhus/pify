@@ -14,12 +14,13 @@ declare function request2(
 expectError(pify());
 expectError(pify(42));
 expectError(pify('abc'));
-expectError(pify([]));
+expectType<number[]>(pify([1,2]));
 
-expectAssignable<Buffer>(await pify(fs).readFile('a.txt'))
+expectType<Buffer>(await pify(fs).readFile('a.txt'))
+expectType<never>(await pify(() => {})())
 expectType<[{ statusCode: number }?, string?]>(await pify(request, { multiArgs: true })('https://www.google.com'))
 expectType<[{ statusCode: number }?, string?]>(await pify(request2, { multiArgs: true, errorFirst: false })('https://www.google.com'))
-expectAssignable<Buffer>(await pify(fs, { include: ['read'] }).readFile('a.txt'))
+expectType<Buffer>(await pify(fs, { include: ['read'] }).readFile('a.txt'))
 expectAssignable<typeof fs.readFile>(pify(fs, { exclude: ['read'] }).readFile)
 expectAssignable<typeof request>(pify(request, { excludeMain: true }))
 expectType<boolean>(await pify(fs.exists, { errorFirst: false })('a.txt'))
