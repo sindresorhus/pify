@@ -9,16 +9,27 @@ interface PifyOptions {
     promiseModule?: PromiseConstructor
 }
 
-type AnyFunction = (...args: any) => any
+type AnyFunction = (...args: any) => any;
 type LastParameter<F extends AnyFunction> = Tuple.Last<Parameters<F>>;
 type CallbackParameters<F extends AnyFunction> =
     LastParameter<F> extends AnyFunction ? Parameters<LastParameter<F>> : never;
-type PifiedFunction<F extends AnyFunction, R> = (...args: Tuple.Pop<Parameters<F>>) => Promise<R>
 
-declare function pify<F extends AnyFunction>(input: F, options?: PifyOptions & { multiArgs: true, errorFirst: false }): PifiedFunction<F, CallbackParameters<F>>;
-declare function pify<F extends AnyFunction>(input: F, options?: PifyOptions & { multiArgs: true }): PifiedFunction<F, Tuple.Tail<CallbackParameters<F>>>;
-declare function pify<F extends AnyFunction>(input: F, options?: PifyOptions & { errorFirst: false }): PifiedFunction<F, CallbackParameters<F>[0]>;
-declare function pify<F extends AnyFunction>(input: F, options?: PifyOptions): PifiedFunction<F, CallbackParameters<F>[1]>;
-declare function pify(input: {[key: string]: unknown}, options?: PifyOptions): {[key: string]: any};
+type PifiedResolved<F extends AnyFunction, O extends PifyOptions> =
+    O extends { multiArgs: true }
+    ? (O extends { errorFirst: false } ? CallbackParameters<F> : Tuple.Tail<CallbackParameters<F>>)
+    : CallbackParameters<F>[O extends { errorFirst: false } ? 0 : 1];
+type PifiedFunction<F extends AnyFunction, O extends PifyOptions, ExcludeMain extends boolean> =
+    ExcludeMain extends true ? F : (((...args: Tuple.Pop<Parameters<F>>) => Promise<PifiedResolved<F, O>>) | F);
+type PifiedProperty<P extends any, O extends PifyOptions> = P extends AnyFunction ? PifiedFunction<P, O, false> : P;
+
+type AnyObject = {[key: string]: any};
+type PifiedObject<T extends AnyObject, O extends PifyOptions> = {
+    [P in (keyof T)]: PifiedProperty<T[P], O>
+};
+type PifyInput = (AnyFunction & AnyObject) | AnyObject;
+type PifyOutput<T extends PifyInput, O extends PifyOptions> = T extends AnyFunction
+    ? (PifiedFunction<T, O, O extends { excludeMain: true } ? true : false> & PifiedObject<T, O>)
+    : PifiedObject<T, O>;
+declare function pify<T extends any, O extends PifyOptions>(input: T, options?: O): PifyOutput<T, O>;
 
 export = pify;
