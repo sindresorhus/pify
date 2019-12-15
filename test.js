@@ -302,3 +302,16 @@ test('do not promisify Function.prototype.bind', async t => {
 	const target = {};
 	t.is(await m(fn).bind(target)(), target);
 });
+
+test('do not break internal callback usage', async t => {
+	const obj = {
+		foo(cb) {
+			this.bar(4, cb);
+		},
+		bar(...args) {
+			const cb = args.pop();
+			cb(null, 42);
+		}
+	};
+	t.is(await m(obj).foo(), 42);
+});

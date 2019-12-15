@@ -1,6 +1,6 @@
 'use strict';
 
-const processFn = (fn, options) => function (...args) {
+const processFn = (fn, options, proxy, unwrapped) => function (...args) {
 	const P = options.promiseModule;
 
 	return new P((resolve, reject) => {
@@ -29,7 +29,8 @@ const processFn = (fn, options) => function (...args) {
 			args.push(resolve);
 		}
 
-		Reflect.apply(fn, this, args);
+		const self = this === proxy ? unwrapped : this;
+		Reflect.apply(fn, self, args);
 	});
 };
 
@@ -70,7 +71,7 @@ module.exports = (input, options) => {
 
 	const cache = new WeakMap();
 
-	const handler = {
+	const proxy = new Proxy(input, {
 		apply(target, thisArg, args) {
 			const cached = cache.get(target);
 
@@ -78,7 +79,7 @@ module.exports = (input, options) => {
 				return Reflect.apply(cached, thisArg, args);
 			}
 
-			const pified = options.excludeMain ? target : processFn(target, options);
+			const pified = options.excludeMain ? target : processFn(target, options, proxy, target);
 			cache.set(target, pified);
 			return Reflect.apply(pified, thisArg, args);
 		},
@@ -97,14 +98,14 @@ module.exports = (input, options) => {
 			}
 
 			if (typeof prop === 'function') {
-				const pified = processFn(prop, options);
+				const pified = processFn(prop, options, proxy, target);
 				cache.set(prop, pified);
 				return pified;
 			}
 
 			return prop;
 		}
-	};
+	});
 
-	return new Proxy(input, handler);
+	return proxy;
 };
