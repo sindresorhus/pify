@@ -62,9 +62,9 @@ module.exports = (input, options) => {
 
 		const match = pattern => (typeof pattern === 'string' || typeof key === 'symbol') ? key === pattern : pattern.test(key);
 		const desc = Reflect.getOwnPropertyDescriptor(target, key);
-		const writableOrConfigurable = (desc === undefined || desc.writable || desc.configurable);
+		const writableOrConfigurableOwn = (desc === undefined || desc.writable || desc.configurable);
 		const included = options.include ? options.include.some(match) : !options.exclude.some(match);
-		const shouldFilter = included && writableOrConfigurable;
+		const shouldFilter = included && writableOrConfigurableOwn;
 		cached[key] = shouldFilter;
 		return shouldFilter;
 	};
