@@ -294,3 +294,11 @@ test('non-writable non-configurable property', t => {
 	const pified = m(obj);
 	t.notThrows(() => Reflect.get(pified, 'prop'));
 });
+
+test('do not promisify Function.prototype.bind', async t => {
+	function fn(cb) {
+		cb(null, this);
+	}
+	const target = {};
+	t.is(await m(fn).bind(target)(), target);
+});

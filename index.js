@@ -86,7 +86,7 @@ module.exports = (input, options) => {
 		get(target, key) {
 			const prop = target[key];
 
-			if (!filter(target, key)) {
+			if (!filter(target, key) || prop === Function.prototype.bind) {
 				return prop;
 			}
 
