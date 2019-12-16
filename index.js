@@ -87,7 +87,8 @@ module.exports = (input, options) => {
 		get(target, key) {
 			const prop = target[key];
 
-			if (!filter(target, key) || prop === Function.prototype.bind) {
+			// eslint-disable-next-line no-use-extend-native/no-use-extend-native
+			if (!filter(target, key) || prop === Function.prototype[key]) {
 				return prop;
 			}
 

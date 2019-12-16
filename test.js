@@ -315,3 +315,31 @@ test('do not break internal callback usage', async t => {
 	};
 	t.is(await m(obj).foo(), 42);
 });
+
+test('Function.prototype.call', async t => {
+	function fn(...args) {
+		const cb = args.pop();
+		cb(null, args.length);
+	}
+	const pified = m(fn);
+	t.is(await pified.call(), 0);
+});
+
+test('Function.prototype.apply', async t => {
+	function fn(...args) {
+		const cb = args.pop();
+		cb(null, args.length);
+	}
+	const pified = m(fn);
+	t.is(await pified.apply(), 0);
+});
+
+test('self as member', async t => {
+	function fn(...args) {
+		const cb = args.pop();
+		cb(null, args.length);
+	}
+	fn.self = fn;
+	const pified = m(fn);
+	t.is(await pified.self(), 0);
+});
