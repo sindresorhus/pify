@@ -176,7 +176,7 @@ test('`errorFirst` option and `multiArgs`', async t => {
 	})('🦄', '🌈'), ['🦄', '🌈']);
 });
 
-test('class support - creates a copy', async t => {
+test('class support - does not create a copy', async t => {
 	const obj = {
 		x: 'foo',
 		y(cb) {
@@ -186,27 +186,16 @@ test('class support - creates a copy', async t => {
 		}
 	};
 
-	const pified = m(obj, {bind: false});
+	const pified = m(obj);
 	obj.x = 'bar';
 
-	t.is(await pified.y(), 'foo');
-	t.is(pified.x, 'foo');
+	t.is(await pified.y(), 'bar');
+	t.is(pified.x, 'bar');
 });
 
 test('class support — transforms inherited methods', t => {
 	const instance = new FixtureClass();
 	const pInstance = m(instance);
-
-	const flattened = {};
-	for (let prot = instance; prot; prot = Object.getPrototypeOf(prot)) {
-		Object.assign(flattened, prot);
-	}
-
-	const keys = Object.keys(flattened);
-	keys.sort();
-	const pKeys = Object.keys(pInstance);
-	pKeys.sort();
-	t.deepEqual(keys, pKeys);
 
 	t.is(instance.value1, pInstance.value1);
 	t.is(typeof pInstance.instanceMethod1().then, 'function');
@@ -235,17 +224,6 @@ test('class support - transforms only members in options.include, copies all', t
 	const pInstance = m(instance, {
 		include: ['parentMethod1']
 	});
-
-	const flattened = {};
-	for (let prot = instance; prot; prot = Object.getPrototypeOf(prot)) {
-		Object.assign(flattened, prot);
-	}
-
-	const keys = Object.keys(flattened);
-	keys.sort();
-	const pKeys = Object.keys(pInstance);
-	pKeys.sort();
-	t.deepEqual(keys, pKeys);
 
 	t.is(typeof pInstance.parentMethod1().then, 'function');
 	t.not(typeof pInstance.method1(() => {}).then, 'function');
@@ -277,4 +255,91 @@ test('class support - options.include over options.exclude', t => {
 test('promisify prototype function', async t => {
 	const instance = new FixtureClass();
 	t.is(await instance.method2Async(), 72);
+});
+
+test('method mutation', async t => {
+	const obj = {
+		foo(cb) {
+			setImmediate(() => cb(null, 'original'));
+		}
+	};
+	const pified = m(obj);
+
+	obj.foo = cb => setImmediate(() => cb(null, 'new'));
+
+	t.is(await pified.foo(), 'new');
+});
+
+test('symbol keys', async t => {
+	await t.notThrowsAsync(async () => {
+		const sym = Symbol('sym');
+		const obj = {[sym]: cb => setImmediate(cb)};
+		const pified = m(obj);
+		await pified[sym]();
+	});
+});
+
+// [[Get]] for proxy objects enforces the following invariants: The value
+// reported for a property must be the same as the value of the corresponding
+// target object property if the target object property is a non-writable,
+// non-configurable own data property.
+test('non-writable non-configurable property', t => {
+	const obj = {};
+	Object.defineProperty(obj, 'prop', {
+		value: cb => setImmediate(cb),
+		writable: false,
+		configurable: false
+	});
+
+	const pified = m(obj);
+	t.notThrows(() => Reflect.get(pified, 'prop'));
+});
+
+test('do not promisify Function.prototype.bind', async t => {
+	function fn(cb) {
+		cb(null, this);
+	}
+	const target = {};
+	t.is(await m(fn).bind(target)(), target);
+});
+
+test('do not break internal callback usage', async t => {
+	const obj = {
+		foo(cb) {
+			this.bar(4, cb);
+		},
+		bar(...args) {
+			const cb = args.pop();
+			cb(null, 42);
+		}
+	};
+	t.is(await m(obj).foo(), 42);
+});
+
+test('Function.prototype.call', async t => {
+	function fn(...args) {
+		const cb = args.pop();
+		cb(null, args.length);
+	}
+	const pified = m(fn);
+	t.is(await pified.call(), 0);
+});
+
+test('Function.prototype.apply', async t => {
+	function fn(...args) {
+		const cb = args.pop();
+		cb(null, args.length);
+	}
+	const pified = m(fn);
+	t.is(await pified.apply(), 0);
+});
+
+test('self as member', async t => {
+	function fn(...args) {
+		const cb = args.pop();
+		cb(null, args.length);
+	}
+	fn.self = fn;
+	const pified = m(fn);
+	t.is(await pified.self(), 0);
 });

@@ -1,6 +1,6 @@
 'use strict';
 
-const processFn = (fn, options) => function (...args) {
+const processFn = (fn, options, proxy, unwrapped) => function (...args) {
 	const P = options.promiseModule;
 
 	return new P((resolve, reject) => {
@@ -29,9 +29,12 @@ const processFn = (fn, options) => function (...args) {
 			args.push(resolve);
 		}
 
-		fn.apply(this, args);
+		const self = this === proxy ? unwrapped : this;
+		Reflect.apply(fn, self, args);
 	});
 };
+
+const filterCache = new WeakMap();
 
 module.exports = (input, options) => {
 	options = Object.assign({
@@ -45,24 +48,65 @@ module.exports = (input, options) => {
 		throw new TypeError(`Expected \`input\` to be a \`Function\` or \`Object\`, got \`${input === null ? 'null' : objType}\``);
 	}
 
-	const filter = key => {
-		const match = pattern => typeof pattern === 'string' ? key === pattern : pattern.test(key);
-		return options.include ? options.include.some(match) : !options.exclude.some(match);
+	const filter = (target, key) => {
+		let cached = filterCache.get(target);
+
+		if (!cached) {
+			cached = {};
+			filterCache.set(target, cached);
+		}
+
+		if (key in cached) {
+			return cached[key];
+		}
+
+		const match = pattern => (typeof pattern === 'string' || typeof key === 'symbol') ? key === pattern : pattern.test(key);
+		const desc = Reflect.getOwnPropertyDescriptor(target, key);
+		const writableOrConfigurableOwn = (desc === undefined || desc.writable || desc.configurable);
+		const included = options.include ? options.include.some(match) : !options.exclude.some(match);
+		const shouldFilter = included && writableOrConfigurableOwn;
+		cached[key] = shouldFilter;
+		return shouldFilter;
 	};
 
-	let ret;
-	if (objType === 'function') {
-		ret = function (...args) {
-			return options.excludeMain ? input(...args) : processFn(input, options).apply(this, args);
-		};
-	} else {
-		ret = Object.create(Object.getPrototypeOf(input));
-	}
+	const cache = new WeakMap();
 
-	for (const key in input) { // eslint-disable-line guard-for-in
-		const property = input[key];
-		ret[key] = typeof property === 'function' && filter(key) ? processFn(property, options) : property;
-	}
+	const proxy = new Proxy(input, {
+		apply(target, thisArg, args) {
+			const cached = cache.get(target);
 
-	return ret;
+			if (cached) {
+				return Reflect.apply(cached, thisArg, args);
+			}
+
+			const pified = options.excludeMain ? target : processFn(target, options, proxy, target);
+			cache.set(target, pified);
+			return Reflect.apply(pified, thisArg, args);
+		},
+
+		get(target, key) {
+			const prop = target[key];
+
+			// eslint-disable-next-line no-use-extend-native/no-use-extend-native
+			if (!filter(target, key) || prop === Function.prototype[key]) {
+				return prop;
+			}
+
+			const cached = cache.get(prop);
+
+			if (cached) {
+				return cached;
+			}
+
+			if (typeof prop === 'function') {
+				const pified = processFn(prop, options, proxy, target);
+				cache.set(prop, pified);
+				return pified;
+			}
+
+			return prop;
+		}
+	});
+
+	return proxy;
 };
