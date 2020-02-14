@@ -2,13 +2,11 @@
 
 > Promisify a callback-style function
 
-
 ## Install
 
 ```
 $ npm install pify
 ```
-
 
 ## Usage
 
@@ -17,18 +15,17 @@ const fs = require('fs');
 const pify = require('pify');
 
 (async () => {
-	// Promisify a single function
+	// Promisify a single function.
 	const data = await pify(fs.readFile)('package.json', 'utf8');
 	console.log(JSON.parse(data).name);
 	//=> 'pify'
 
-	// Promisify all methods in a module
+	// Promisify all methods in a module.
 	const data2 = await pify(fs).readFile('package.json', 'utf8');
 	console.log(JSON.parse(data2).name);
 	//=> 'pify'
 })();
 ```
-
 
 ## API
 
@@ -48,7 +45,7 @@ Type: `object`
 
 ##### multiArgs
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `false`
 
 By default, the promisified function will only return the second argument from the callback, which works fine for most APIs. This option can be useful for modules like `request` that return multiple arguments. Turning this on will make it return an array of all arguments from the callback, excluding the error argument, instead of just the second argument. This also applies to rejections, where it returns an array of all the callback arguments, including the error.
@@ -72,14 +69,14 @@ Methods in a module to promisify. Remaining methods will be left untouched.
 
 ##### exclude
 
-Type: `Array<string | RegExp>`<br>
-Default: `[/.+(Sync|Stream)$/]`
+Type: `Array<string | RegExp>`\
+Default: `[/.+(?:Sync|Stream)$/]`
 
 Methods in a module **not** to promisify. Methods with names ending with `'Sync'` are excluded by default.
 
 ##### excludeMain
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `false`
 
 If the given module is a function itself, it will be promisified. Enable this option if you want to promisify only methods of the module.
@@ -98,7 +95,7 @@ fn.method = (data, callback) => {
 };
 
 (async () => {
-	// Promisify methods but not `fn()`
+	// Promisify methods but not `fn()`.
 	const promiseFn = pify(fn, {excludeMain: true});
 
 	if (promiseFn()) {
@@ -109,7 +106,7 @@ fn.method = (data, callback) => {
 
 ##### errorFirst
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `true`
 
 Whether the callback has an error as the first argument. You'll want to set this to `false` if you're dealing with an API that doesn't have an error as the first argument, like `fs.exists()`, some browser APIs, Chrome Extension APIs, etc.
@@ -119,7 +116,6 @@ Whether the callback has an error as the first argument. You'll want to set this
 Type: `Function`
 
 Custom promise module to use instead of the native one.
-
 
 ## FAQ
 
@@ -131,13 +127,11 @@ Custom promise module to use instead of the native one.
 - Pify has useful options like the ability to handle multiple arguments (`multiArgs`).
 - Pify does not have [magic behavior](https://nodejs.org/api/util.html#util_custom_promisified_functions) for certain Node.js methods and instead focuses on predictability.
 
-
 ## Related
 
 - [p-event](https://github.com/sindresorhus/p-event) - Promisify an event by waiting for it to be emitted
 - [p-map](https://github.com/sindresorhus/p-map) - Map over promises concurrently
 - [More…](https://github.com/sindresorhus/promise-fun)
-
 
 ---
 

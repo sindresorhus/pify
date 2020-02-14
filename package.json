@@ -4,13 +4,14 @@
 	"description": "Promisify a callback-style function",
 	"license": "MIT",
 	"repository": "sindresorhus/pify",
+	"funding": "https://github.com/sponsors/sindresorhus",
 	"author": {
 		"name": "Sindre Sorhus",
 		"email": "sindresorhus@gmail.com",
-		"url": "sindresorhus.com"
+		"url": "https://sindresorhus.com"
 	},
 	"engines": {
-		"node": ">=6"
+		"node": ">=10"
 	},
 	"scripts": {
 		"test": "xo && ava",
@@ -20,14 +21,12 @@
 		"index.js"
 	],
 	"keywords": [
+		"promisify",
+		"callback",
 		"promise",
 		"promises",
-		"promisify",
-		"all",
 		"denodify",
 		"denodeify",
-		"callback",
-		"cb",
 		"node",
 		"then",
 		"thenify",
@@ -36,7 +35,6 @@
 		"wrap",
 		"wrapper",
 		"bind",
-		"to",
 		"async",
 		"await",
 		"es2015",
@@ -46,6 +44,6 @@
 		"ava": "^2.4.0",
 		"pinkie-promise": "^2.0.0",
 		"v8-natives": "^1.1.0",
-		"xo": "^0.23.0"
+		"xo": "^0.26.1"
 	}
 }

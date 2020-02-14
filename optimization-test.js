@@ -26,19 +26,20 @@ function assertOptimized(fn, name) {
 	}
 }
 
-const sut = pify({
-	unicorn: cb => {
-		cb(null, 'unicorn');
+const fn = pify({
+	unicorn: callback => {
+		callback(null, 'unicorn');
 	}
 });
 
-sut.unicorn().then(() => {
-	v8.optimizeFunctionOnNextCall(sut.unicorn);
-
-	return sut.unicorn().then(() => {
-		assertOptimized(sut.unicorn, 'unicorn');
-	});
-}).catch(error => {
-	console.error(error.stack);
-	process.exit(1); // eslint-disable-line unicorn/no-process-exit
-});
+(async () => {
+	try {
+		await fn.unicorn();
+		v8.optimizeFunctionOnNextCall(fn.unicorn);
+		await fn.unicorn();
+		assertOptimized(fn.unicorn, 'unicorn');
+	} catch (error) {
+		console.error(error);
+		process.exit(1); // eslint-disable-line unicorn/no-process-exit
+	}
+})();

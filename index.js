@@ -1,11 +1,11 @@
 'use strict';
 
-const processFn = (fn, options, proxy, unwrapped) => function (...args) {
+const processFn = (fn, options, proxy, unwrapped) => function (...arguments_) {
 	const P = options.promiseModule;
 
 	return new P((resolve, reject) => {
 		if (options.multiArgs) {
-			args.push((...result) => {
+			arguments_.push((...result) => {
 				if (options.errorFirst) {
 					if (result[0]) {
 						reject(result);
@@ -18,7 +18,7 @@ const processFn = (fn, options, proxy, unwrapped) => function (...args) {
 				}
 			});
 		} else if (options.errorFirst) {
-			args.push((error, result) => {
+			arguments_.push((error, result) => {
 				if (error) {
 					reject(error);
 				} else {
@@ -26,26 +26,27 @@ const processFn = (fn, options, proxy, unwrapped) => function (...args) {
 				}
 			});
 		} else {
-			args.push(resolve);
+			arguments_.push(resolve);
 		}
 
 		const self = this === proxy ? unwrapped : this;
-		Reflect.apply(fn, self, args);
+		Reflect.apply(fn, self, arguments_);
 	});
 };
 
 const filterCache = new WeakMap();
 
 module.exports = (input, options) => {
-	options = Object.assign({
-		exclude: [/.+(Sync|Stream)$/],
+	options = {
+		exclude: [/.+(?:Sync|Stream)$/],
 		errorFirst: true,
-		promiseModule: Promise
-	}, options);
+		promiseModule: Promise,
+		...options
+	};
 
-	const objType = typeof input;
-	if (!(input !== null && (objType === 'object' || objType === 'function'))) {
-		throw new TypeError(`Expected \`input\` to be a \`Function\` or \`Object\`, got \`${input === null ? 'null' : objType}\``);
+	const objectType = typeof input;
+	if (!(input !== null && (objectType === 'object' || objectType === 'function'))) {
+		throw new TypeError(`Expected \`input\` to be a \`Function\` or \`Object\`, got \`${input === null ? 'null' : objectType}\``);
 	}
 
 	const filter = (target, key) => {
@@ -85,26 +86,26 @@ module.exports = (input, options) => {
 		},
 
 		get(target, key) {
-			const prop = target[key];
+			const property = target[key];
 
 			// eslint-disable-next-line no-use-extend-native/no-use-extend-native
-			if (!filter(target, key) || prop === Function.prototype[key]) {
-				return prop;
+			if (!filter(target, key) || property === Function.prototype[key]) {
+				return property;
 			}
 
-			const cached = cache.get(prop);
+			const cached = cache.get(property);
 
 			if (cached) {
 				return cached;
 			}
 
-			if (typeof prop === 'function') {
-				const pified = processFn(prop, options, proxy, target);
-				cache.set(prop, pified);
+			if (typeof property === 'function') {
+				const pified = processFn(property, options, proxy, target);
+				cache.set(property, pified);
 				return pified;
 			}
 
-			return prop;
+			return property;
 		}
 	});
 
