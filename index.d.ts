@@ -77,27 +77,27 @@ interface PifyOptions {
 }
 
 type AnyFunction = (...args: any) => any;
-type LastParameter<F extends AnyFunction> = Tuple.Last<Parameters<F>>;
-type CallbackParameters<F extends AnyFunction> =
-    Tuple.Length<Parameters<F>> extends 0 ? never :
-    LastParameter<F> extends AnyFunction ? Parameters<LastParameter<F>> : never;
+type LastParameter<InputFunction extends AnyFunction> = Tuple.Last<Parameters<InputFunction>>;
+type CallbackParameters<InputFunction extends AnyFunction> =
+    Tuple.Length<Parameters<InputFunction>> extends 0 ? never :
+    LastParameter<InputFunction> extends AnyFunction ? Parameters<LastParameter<InputFunction>> : never;
 
-type PifiedResolved<F extends AnyFunction, O extends PifyOptions> =
-    O extends { multiArgs: true }
-    ? (O extends { errorFirst: false } ? CallbackParameters<F> : Tuple.Tail<CallbackParameters<F>>)
-    : CallbackParameters<F>[O extends { errorFirst: false } ? 0 : 1];
-type PifiedFunction<F extends AnyFunction, O extends PifyOptions> =
-    (...args: Tuple.Pop<Parameters<F>>) => Promise<PifiedResolved<F, O>>;
-type PifiedProperty<P extends any, O extends PifyOptions> = P extends AnyFunction ? (PifiedFunction<P, O> & P) : P;
+type PifiedResolved<InputFunction extends AnyFunction, Options extends PifyOptions> =
+    Options extends { multiArgs: true }
+    ? (Options extends { errorFirst: false } ? CallbackParameters<InputFunction> : Tuple.Tail<CallbackParameters<InputFunction>>)
+    : CallbackParameters<InputFunction>[Options extends { errorFirst: false } ? 0 : 1];
+type PifiedFunction<InputFunction extends AnyFunction, Options extends PifyOptions> =
+    (...args: Tuple.Pop<Parameters<InputFunction>>) => Promise<PifiedResolved<InputFunction, Options>>;
+type PifiedProperty<PropertyValue extends any, Options extends PifyOptions> = PropertyValue extends AnyFunction ? (PifiedFunction<PropertyValue, Options> & PropertyValue) : PropertyValue;
 
 type AnyObject = {[key: string]: any};
-type PifiedObject<T extends AnyObject, O extends PifyOptions> = {
-    [P in (keyof T)]: PifiedProperty<T[P], O>
+type PifiedObject<Input extends AnyObject, Options extends PifyOptions> = {
+    [PropertyKey in (keyof Input)]: PifiedProperty<Input[PropertyKey], Options>
 };
 type PifyInput = (AnyFunction & AnyObject) | AnyObject;
-type PifyOutput<T extends PifyInput, O extends PifyOptions> = T extends AnyFunction
-    ? (O extends { excludeMain: true } ? T : PifiedFunction<T, O>) & PifiedObject<T, O>
-    : PifiedObject<T, O>;
+type PifyOutput<Input extends PifyInput, Options extends PifyOptions> = Input extends AnyFunction
+    ? (Options extends { excludeMain: true } ? Input : PifiedFunction<Input, Options>) & PifiedObject<Input, Options>
+    : PifiedObject<Input, Options>;
 
 /**
 Returns a `Promise` wrapped version of the supplied function or module.
@@ -123,6 +123,6 @@ const pify = require('pify');
 })();
 ```
 */
-declare function pify<T extends PifyInput, O extends PifyOptions>(input: T, options?: O): PifyOutput<T, O>;
+declare function pify<Input extends PifyInput, Options extends PifyOptions>(input: Input, options?: Options): PifyOutput<Input, Options>;
 
 export = pify;
