@@ -1,11 +1,11 @@
 'use strict';
 
-const processFn = (fn, options) => function (...args) {
+const processFn = (fn, options, proxy, unwrapped) => function (...arguments_) {
 	const P = options.promiseModule;
 
 	return new P((resolve, reject) => {
 		if (options.multiArgs) {
-			args.push((...result) => {
+			arguments_.push((...result) => {
 				if (options.errorFirst) {
 					if (result[0]) {
 						reject(result);
@@ -18,7 +18,7 @@ const processFn = (fn, options) => function (...args) {
 				}
 			});
 		} else if (options.errorFirst) {
-			args.push((error, result) => {
+			arguments_.push((error, result) => {
 				if (error) {
 					reject(error);
 				} else {
@@ -26,43 +26,88 @@ const processFn = (fn, options) => function (...args) {
 				}
 			});
 		} else {
-			args.push(resolve);
+			arguments_.push(resolve);
 		}
 
-		fn.apply(this, args);
+		const self = this === proxy ? unwrapped : this;
+		Reflect.apply(fn, self, arguments_);
 	});
 };
 
+const filterCache = new WeakMap();
+
 module.exports = (input, options) => {
-	options = Object.assign({
-		exclude: [/.+(Sync|Stream)$/],
+	options = {
+		exclude: [/.+(?:Sync|Stream)$/],
 		errorFirst: true,
-		promiseModule: Promise
-	}, options);
-
-	const objType = typeof input;
-	if (!(input !== null && (objType === 'object' || objType === 'function'))) {
-		throw new TypeError(`Expected \`input\` to be a \`Function\` or \`Object\`, got \`${input === null ? 'null' : objType}\``);
-	}
-
-	const filter = key => {
-		const match = pattern => typeof pattern === 'string' ? key === pattern : pattern.test(key);
-		return options.include ? options.include.some(match) : !options.exclude.some(match);
+		promiseModule: Promise,
+		...options
 	};
 
-	let ret;
-	if (objType === 'function') {
-		ret = function (...args) {
-			return options.excludeMain ? input(...args) : processFn(input, options).apply(this, args);
-		};
-	} else {
-		ret = Object.create(Object.getPrototypeOf(input));
+	const objectType = typeof input;
+	if (!(input !== null && (objectType === 'object' || objectType === 'function'))) {
+		throw new TypeError(`Expected \`input\` to be a \`Function\` or \`Object\`, got \`${input === null ? 'null' : objectType}\``);
 	}
 
-	for (const key in input) { // eslint-disable-line guard-for-in
-		const property = input[key];
-		ret[key] = typeof property === 'function' && filter(key) ? processFn(property, options) : property;
-	}
+	const filter = (target, key) => {
+		let cached = filterCache.get(target);
 
-	return ret;
+		if (!cached) {
+			cached = {};
+			filterCache.set(target, cached);
+		}
+
+		if (key in cached) {
+			return cached[key];
+		}
+
+		const match = pattern => (typeof pattern === 'string' || typeof key === 'symbol') ? key === pattern : pattern.test(key);
+		const desc = Reflect.getOwnPropertyDescriptor(target, key);
+		const writableOrConfigurableOwn = (desc === undefined || desc.writable || desc.configurable);
+		const included = options.include ? options.include.some(match) : !options.exclude.some(match);
+		const shouldFilter = included && writableOrConfigurableOwn;
+		cached[key] = shouldFilter;
+		return shouldFilter;
+	};
+
+	const cache = new WeakMap();
+
+	const proxy = new Proxy(input, {
+		apply(target, thisArg, args) {
+			const cached = cache.get(target);
+
+			if (cached) {
+				return Reflect.apply(cached, thisArg, args);
+			}
+
+			const pified = options.excludeMain ? target : processFn(target, options, proxy, target);
+			cache.set(target, pified);
+			return Reflect.apply(pified, thisArg, args);
+		},
+
+		get(target, key) {
+			const property = target[key];
+
+			// eslint-disable-next-line no-use-extend-native/no-use-extend-native
+			if (!filter(target, key) || property === Function.prototype[key]) {
+				return property;
+			}
+
+			const cached = cache.get(property);
+
+			if (cached) {
+				return cached;
+			}
+
+			if (typeof property === 'function') {
+				const pified = processFn(property, options, proxy, target);
+				cache.set(property, pified);
+				return pified;
+			}
+
+			return property;
+		}
+	});
+
+	return proxy;
 };

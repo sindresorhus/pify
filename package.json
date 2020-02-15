@@ -1,16 +1,17 @@
 {
 	"name": "pify",
-	"version": "4.0.1",
+	"version": "5.0.0",
 	"description": "Promisify a callback-style function",
 	"license": "MIT",
 	"repository": "sindresorhus/pify",
+	"funding": "https://github.com/sponsors/sindresorhus",
 	"author": {
 		"name": "Sindre Sorhus",
 		"email": "sindresorhus@gmail.com",
-		"url": "sindresorhus.com"
+		"url": "https://sindresorhus.com"
 	},
 	"engines": {
-		"node": ">=6"
+		"node": ">=10"
 	},
 	"scripts": {
 		"test": "xo && ava & tsd",
@@ -21,14 +22,12 @@
 		"index.d.ts"
 	],
 	"keywords": [
+		"promisify",
+		"callback",
 		"promise",
 		"promises",
-		"promisify",
-		"all",
 		"denodify",
 		"denodeify",
-		"callback",
-		"cb",
 		"node",
 		"then",
 		"thenify",
@@ -37,14 +36,13 @@
 		"wrap",
 		"wrapper",
 		"bind",
-		"to",
 		"async",
 		"await",
 		"es2015",
 		"bluebird"
 	],
 	"devDependencies": {
-		"ava": "^0.25.0",
+		"ava": "^2.4.0",
 		"pinkie-promise": "^2.0.0",
 		"tsd": "^0.11.0",
 		"v8-natives": "^1.1.0",
@@ -52,5 +50,6 @@
 	},
 	"dependencies": {
 		"ts-toolbelt": "^4.10.21"
+		"xo": "^0.26.1"
 	}
 }
