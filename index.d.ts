@@ -77,10 +77,10 @@ interface PifyOptions {
 }
 
 type AnyFunction = (...args: any) => any;
-type LastParameter<InputFunction extends AnyFunction> = Tuple.Last<Parameters<InputFunction>>;
-type CallbackParameters<InputFunction extends AnyFunction> =
-    Tuple.Length<Parameters<InputFunction>> extends 0 ? never :
-    LastParameter<InputFunction> extends AnyFunction ? Parameters<LastParameter<InputFunction>> : never;
+type LastParameter<F extends AnyFunction> = Tuple.Last<Parameters<F>>;
+type CallbackParameters<F extends AnyFunction> =
+    Tuple.Length<Parameters<F>> extends 0 ? never :
+    LastParameter<F> extends AnyFunction ? Parameters<LastParameter<F>> : never;
 
 type PifiedResolved<InputFunction extends AnyFunction, Options extends PifyOptions> =
     Options extends { multiArgs: true }
