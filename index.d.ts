@@ -123,6 +123,6 @@ const pify = require('pify');
 })();
 ```
 */
-declare function pify<Input extends PifyInput, Options extends PifyOptions>(input: Input, options?: Options): PifyOutput<Input, Options>;
+declare function pify<Input extends PifyInput, Options extends PifyOptions = PifyOptions>(input: Input, options?: Options): PifyOutput<Input, Options>;
 
 export = pify;
