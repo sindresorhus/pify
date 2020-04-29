@@ -269,6 +269,22 @@ test('class support - options.include over options.exclude', t => {
 	t.not(typeof pInstance.grandparentMethod1(() => {}).then, 'function');
 });
 
+class TrueReflector {
+	constructor() {
+		this.value = true;
+	}
+
+	getTrue(callback) {
+		callback(this.value);
+	}
+}
+
+test('class support - allows function to access their context', async t => {
+	const trueReflector = new TrueReflector();
+	const pInstance = pify(trueReflector.getTrue);
+	t.true(await pInstance());
+});
+
 test('promisify prototype function', async t => {
 	const instance = new FixtureClass();
 	t.is(await instance.method2Async(), 72);
