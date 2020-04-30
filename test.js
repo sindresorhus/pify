@@ -279,7 +279,7 @@ class TrueReflector {
 	}
 }
 
-test('class support - allows function to access their context', async t => {
+test.failing('class support - allows function to access their context', async t => {
 	const trueReflector = new TrueReflector();
 	const pInstance = pify(trueReflector.getTrue);
 	t.true(await pInstance());
