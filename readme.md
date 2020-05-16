@@ -127,6 +127,23 @@ Custom promise module to use instead of the native one.
 - Pify has useful options like the ability to handle multiple arguments (`multiArgs`).
 - Pify does not have [magic behavior](https://nodejs.org/api/util.html#util_custom_promisified_functions) for certain Node.js methods and instead focuses on predictability.
 
+#### Why can't a promisified class function access it's own context?
+
+Pify is unable to automatically bind a function to it's original class context. As a workaround, bind the promisified function to the original class instance.
+
+```js
+const pify = require('pify');
+const SomeClass = require('./some-class');
+
+const someClass = new SomeClass();
+
+// `someFunction` won't be able to access the class context
+const someFunction = pify(someClass.someFunction);
+
+// `someFunction` is manually binded to the class context
+const someFunction = pify(someClass.someFunction).bind(someClass);
+```
+
 ## Related
 
 - [p-event](https://github.com/sindresorhus/p-event) - Promisify an event by waiting for it to be emitted
