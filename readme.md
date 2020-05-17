@@ -129,7 +129,7 @@ Custom promise module to use instead of the native one.
 
 #### Why can't a promisified class function access it's own context?
 
-Pify is unable to automatically bind a function to it's original class context. As a workaround, bind the promisified function to the original class instance.
+The context of a function can't easily be detected. As a workaround, promisify the whole class and extract the function from the result.
 
 ```js
 const pify = require('pify');
@@ -137,11 +137,8 @@ const SomeClass = require('./some-class');
 
 const someClass = new SomeClass();
 
-// `someFunction` won't be able to access the class context
-const someFunction = pify(someClass.someFunction);
-
-// `someFunction` is manually binded to the class context
-const someFunction = pify(someClass.someFunction).bind(someClass);
+// `someFunction` is extracted from the entire promisified class, allowing it to keep it's context
+const {someFunction} = pify(someClass);
 ```
 
 ## Related
