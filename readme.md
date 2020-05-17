@@ -129,13 +129,16 @@ Custom promise module to use instead of the native one.
 
 #### Why can't a promisified class function access it's own context?
 
-The context of a function can't easily be detected. As a workaround, promisify the whole class and extract the function from the result.
+The context of free functions can't be detected. As a workaround, promisify the whole class and extract the function from the result.
 
 ```js
 const pify = require('pify');
 const SomeClass = require('./some-class');
 
 const someClass = new SomeClass();
+
+// `someFunction` can't access it's class context
+const someFunction = pify(someClass.someFunction);
 
 // `someFunction` is extracted from the entire promisified class, allowing it to keep it's context
 const someFunction = pify(someClass).someFunction;
