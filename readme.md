@@ -138,7 +138,7 @@ const SomeClass = require('./some-class');
 const someClass = new SomeClass();
 
 // `someFunction` is extracted from the entire promisified class, allowing it to keep it's context
-const {someFunction} = pify(someClass);
+const someFunction = pify(someClass).someFunction;
 ```
 
 ## Related
