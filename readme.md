@@ -129,7 +129,7 @@ Custom promise module to use instead of the native one.
 
 #### How can I promisify a single class method?
 
-The context of free functions can't be detected. As a workaround, promisify the whole class and extract the function from the result.
+Class methods are not bound, so when they're not called on the class itself, they don't have any context. You can either promisify the whole class or use .bind().
 
 ```js
 const pify = require('pify');
@@ -142,6 +142,9 @@ const someFunction = pify(someClass.someFunction);
 
 // `someFunction` is extracted from the entire promisified class, allowing it to keep it's context
 const someFunction = pify(someClass).someFunction;
+
+// `someFunction` is binded to its class
+const someFunction = pify(someClass.someFunction).bind(someClass)
 ```
 
 ## Related
