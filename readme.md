@@ -127,7 +127,7 @@ Custom promise module to use instead of the native one.
 - Pify has useful options like the ability to handle multiple arguments (`multiArgs`).
 - Pify does not have [magic behavior](https://nodejs.org/api/util.html#util_custom_promisified_functions) for certain Node.js methods and instead focuses on predictability.
 
-#### Why can't a promisified class function access it's own context?
+#### How can I promisify a single class method?
 
 The context of free functions can't be detected. As a workaround, promisify the whole class and extract the function from the result.
 
