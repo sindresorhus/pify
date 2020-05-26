@@ -135,7 +135,7 @@ Class methods are not bound, so when they're not called on the class itself, the
 const pify = require('pify');
 const SomeClass = require('./some-class');
 
-const someClass = new SomeClass();
+const someInstance = new SomeClass();
 
 // `someFunction` can't access its class context.
 const someFunction = pify(someClass.someFunction);
