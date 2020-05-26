@@ -129,7 +129,7 @@ Custom promise module to use instead of the native one.
 
 #### How can I promisify a single class method?
 
-Class methods are not bound, so when they're not called on the class itself, they don't have any context. You can either promisify the whole class or use .bind().
+Class methods are not bound, so when they're not called on the class itself, they don't have any context. You can either promisify the whole class or use `.bind()`.
 
 ```js
 const pify = require('pify');
@@ -137,13 +137,13 @@ const SomeClass = require('./some-class');
 
 const someClass = new SomeClass();
 
-// `someFunction` can't access it's class context
+// `someFunction` can't access its class context.
 const someFunction = pify(someClass.someFunction);
 
-// `someFunction` is extracted from the entire promisified class, allowing it to keep it's context
+// `someFunction` is extracted from the entire promisified class, allowing it to keep its context.
 const someFunction = pify(someClass).someFunction;
 
-// `someFunction` is binded to its class
+// `someFunction` is bound to its class.
 const someFunction = pify(someClass.someFunction).bind(someClass)
 ```
 
