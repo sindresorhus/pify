@@ -141,7 +141,8 @@ const someClass = new SomeClass();
 const someFunction = pify(someClass.someFunction);
 
 // `someFunction` is extracted from the entire promisified class, allowing it to keep its context.
-const someFunction = pify(someClass).someFunction;
+const someClassPromisified = pify(someClass);
+someClassPromisified.someFunction();
 
 // `someFunction` is bound to its class.
 const someFunction = pify(someClass.someFunction).bind(someClass)
