@@ -145,7 +145,7 @@ const someClassPromisified = pify(someClass);
 someClassPromisified.someFunction();
 
 // `someFunction` is bound to its class.
-const someFunction = pify(someClass.someFunction).bind(someClass);
+const someFunction = pify(someClass.someFunction.bind(someClass));
 ```
 
 ## Related
