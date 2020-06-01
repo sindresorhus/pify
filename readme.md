@@ -137,14 +137,14 @@ const SomeClass = require('./some-class');
 
 const someInstance = new SomeClass();
 
-// `someFunction` can't access its class context.
+// ❌ `someFunction` can't access its class context.
 const someFunction = pify(someClass.someFunction);
 
-// `someFunction` is extracted from the entire promisified class, allowing it to keep its context.
+// ✅ The whole class is promisified and the `someFunction` method is called on its class.
 const someClassPromisified = pify(someClass);
 someClassPromisified.someFunction();
 
-// `someFunction` is bound to its class.
+// ✅ `someFunction` is bound to its class before being promisified.
 const someFunction = pify(someClass.someFunction.bind(someClass));
 ```
 
