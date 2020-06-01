@@ -127,6 +127,27 @@ Custom promise module to use instead of the native one.
 - Pify has useful options like the ability to handle multiple arguments (`multiArgs`).
 - Pify does not have [magic behavior](https://nodejs.org/api/util.html#util_custom_promisified_functions) for certain Node.js methods and instead focuses on predictability.
 
+#### How can I promisify a single class method?
+
+Class methods are not bound, so when they're not called on the class itself, they don't have any context. You can either promisify the whole class or use `.bind()`.
+
+```js
+const pify = require('pify');
+const SomeClass = require('./some-class');
+
+const someInstance = new SomeClass();
+
+// ❌ `someFunction` can't access its class context.
+const someFunction = pify(someClass.someFunction);
+
+// ✅ The whole class is promisified and the `someFunction` method is called on its class.
+const someClassPromisified = pify(someClass);
+someClassPromisified.someFunction();
+
+// ✅ `someFunction` is bound to its class before being promisified.
+const someFunction = pify(someClass.someFunction.bind(someClass));
+```
+
 ## Related
 
 - [p-event](https://github.com/sindresorhus/p-event) - Promisify an event by waiting for it to be emitted
