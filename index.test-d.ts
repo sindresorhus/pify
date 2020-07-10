@@ -43,9 +43,9 @@ expectType<Promise<boolean>>(pify(fs.exists, { errorFirst: false })('a.txt'))
 expectAssignable<(path: string) => Promise<Buffer | undefined>>(pify(fs.readFile, { promiseModule: Promise }))
 expectType<Promise<Buffer | undefined>>(pify(fs.readFile, { promiseModule: Promise })('a.txt'))
 
-declare function generic<A, B>(arg1: A, arg2: B, callback: (error?: Error, result?: A[]) => void): void
-expectAssignable<(arg1: number, arg2: string) => Promise<number[] | undefined>>(pify<(arg1: number, arg2: string, callback: (error?: Error, result?: number[]) => void) => void>(generic))
-expectType<Promise<number[] | undefined>>(pify<(arg1: number, arg2: string, callback: (error?: Error, result?: number[]) => void) => void>(generic)(123, 'abc'))
+declare function fnWithThreeArgs(arg1: number, arg2: string, arg3: boolean, callback: (error?: Error, result?: string[]) => void): void
+expectAssignable<(arg1: number, arg2: string, arg3: boolean) => Promise<string[] | undefined>>(pify(fnWithThreeArgs))
+expectType<Promise<string[] | undefined>>(pify(fnWithThreeArgs)(123, 'abc', false))
 
 // objects
 expectType<number>(pify({k1: 123, k2: 'abc'}).k1)
