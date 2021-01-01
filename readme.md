@@ -1,4 +1,4 @@
-# pify [![Build Status](https://travis-ci.org/sindresorhus/pify.svg?branch=master)](https://travis-ci.org/sindresorhus/pify)
+# pify
 
 > Promisify a callback-style function
 
