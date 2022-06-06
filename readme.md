@@ -4,27 +4,25 @@
 
 ## Install
 
-```
-$ npm install pify
+```sh
+npm install pify
 ```
 
 ## Usage
 
 ```js
-const fs = require('fs');
-const pify = require('pify');
+import fs from 'fs';
+import pify from 'pify';
 
-(async () => {
-	// Promisify a single function.
-	const data = await pify(fs.readFile)('package.json', 'utf8');
-	console.log(JSON.parse(data).name);
-	//=> 'pify'
+// Promisify a single function.
+const data = await pify(fs.readFile)('package.json', 'utf8');
+console.log(JSON.parse(data).name);
+//=> 'pify'
 
-	// Promisify all methods in a module.
-	const data2 = await pify(fs).readFile('package.json', 'utf8');
-	console.log(JSON.parse(data2).name);
-	//=> 'pify'
-})();
+// Promisify all methods in a module.
+const data2 = await pify(fs).readFile('package.json', 'utf8');
+console.log(JSON.parse(data2).name);
+//=> 'pify'
 ```
 
 ## API
@@ -51,14 +49,12 @@ Default: `false`
 By default, the promisified function will only return the second argument from the callback, which works fine for most APIs. This option can be useful for modules like `request` that return multiple arguments. Turning this on will make it return an array of all arguments from the callback, excluding the error argument, instead of just the second argument. This also applies to rejections, where it returns an array of all the callback arguments, including the error.
 
 ```js
-const request = require('request');
-const pify = require('pify');
+import request from 'request';
+import pify from 'pify';
 
 const pRequest = pify(request, {multiArgs: true});
 
-(async () => {
-	const [httpResponse, body] = await pRequest('https://sindresorhus.com');
-})();
+const [httpResponse, body] = await pRequest('https://sindresorhus.com');
 ```
 
 ##### include
@@ -82,7 +78,7 @@ Default: `false`
 If the given module is a function itself, it will be promisified. Enable this option if you want to promisify only methods of the module.
 
 ```js
-const pify = require('pify');
+import pify from 'pify';
 
 function fn() {
 	return true;
@@ -94,14 +90,12 @@ fn.method = (data, callback) => {
 	});
 };
 
-(async () => {
-	// Promisify methods but not `fn()`.
-	const promiseFn = pify(fn, {excludeMain: true});
+// Promisify methods but not `fn()`.
+const promiseFn = pify(fn, {excludeMain: true});
 
-	if (promiseFn()) {
-		console.log(await promiseFn.method('hi'));
-	}
-})();
+if (promiseFn()) {
+	console.log(await promiseFn.method('hi'));
+}
 ```
 
 ##### errorFirst
@@ -132,8 +126,8 @@ Custom promise module to use instead of the native one.
 Class methods are not bound, so when they're not called on the class itself, they don't have any context. You can either promisify the whole class or use `.bind()`.
 
 ```js
-const pify = require('pify');
-const SomeClass = require('./some-class');
+import pify from 'pify';
+import SomeClass from './some-class.js';
 
 const someInstance = new SomeClass();
 

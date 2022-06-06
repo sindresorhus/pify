@@ -1,8 +1,8 @@
 /* eslint-disable no-fallthrough */
-'use strict';
-const assert = require('assert');
-const v8 = require('v8-natives');
-const pify = require('.');
+import process from 'node:process';
+import assert from 'node:assert';
+import v8 from 'v8-natives';
+import pify from './index.js';
 
 function assertOptimized(fn, name) {
 	const status = v8.getOptimizationStatus(fn);
@@ -27,19 +27,17 @@ function assertOptimized(fn, name) {
 }
 
 const fn = pify({
-	unicorn: callback => {
+	unicorn(callback) {
 		callback(null, 'unicorn');
-	}
+	},
 });
 
-(async () => {
-	try {
-		await fn.unicorn();
-		v8.optimizeFunctionOnNextCall(fn.unicorn);
-		await fn.unicorn();
-		assertOptimized(fn.unicorn, 'unicorn');
-	} catch (error) {
-		console.error(error);
-		process.exit(1); // eslint-disable-line unicorn/no-process-exit
-	}
-})();
+try {
+	await fn.unicorn();
+	v8.optimizeFunctionOnNextCall(fn.unicorn);
+	await fn.unicorn();
+	assertOptimized(fn.unicorn, 'unicorn');
+} catch (error) {
+	console.error(error);
+	process.exit(1); // eslint-disable-line unicorn/no-process-exit
+}

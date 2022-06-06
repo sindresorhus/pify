@@ -1,6 +1,4 @@
-'use strict';
-
-const processFn = (fn, options, proxy, unwrapped) => function (...arguments_) {
+const processFunction = (function_, options, proxy, unwrapped) => function (...arguments_) {
 	const P = options.promiseModule;
 
 	return new P((resolve, reject) => {
@@ -30,18 +28,18 @@ const processFn = (fn, options, proxy, unwrapped) => function (...arguments_) {
 		}
 
 		const self = this === proxy ? unwrapped : this;
-		Reflect.apply(fn, self, arguments_);
+		Reflect.apply(function_, self, arguments_);
 	});
 };
 
 const filterCache = new WeakMap();
 
-module.exports = (input, options) => {
+export default function pify(input, options) {
 	options = {
 		exclude: [/.+(?:Sync|Stream)$/],
 		errorFirst: true,
 		promiseModule: Promise,
-		...options
+		...options,
 	};
 
 	const objectType = typeof input;
@@ -62,9 +60,9 @@ module.exports = (input, options) => {
 		}
 
 		const match = pattern => (typeof pattern === 'string' || typeof key === 'symbol') ? key === pattern : pattern.test(key);
-		const desc = Reflect.getOwnPropertyDescriptor(target, key);
-		const writableOrConfigurableOwn = (desc === undefined || desc.writable || desc.configurable);
-		const included = options.include ? options.include.some(match) : !options.exclude.some(match);
+		const descriptor = Reflect.getOwnPropertyDescriptor(target, key);
+		const writableOrConfigurableOwn = (descriptor === undefined || descriptor.writable || descriptor.configurable);
+		const included = options.include ? options.include.some(element => match(element)) : !options.exclude.some(element => match(element));
 		const shouldFilter = included && writableOrConfigurableOwn;
 		cached[key] = shouldFilter;
 		return shouldFilter;
@@ -80,7 +78,7 @@ module.exports = (input, options) => {
 				return Reflect.apply(cached, thisArg, args);
 			}
 
-			const pified = options.excludeMain ? target : processFn(target, options, proxy, target);
+			const pified = options.excludeMain ? target : processFunction(target, options, proxy, target);
 			cache.set(target, pified);
 			return Reflect.apply(pified, thisArg, args);
 		},
@@ -100,14 +98,14 @@ module.exports = (input, options) => {
 			}
 
 			if (typeof property === 'function') {
-				const pified = processFn(property, options, proxy, target);
+				const pified = processFunction(property, options, proxy, target);
 				cache.set(property, pified);
 				return pified;
 			}
 
 			return property;
-		}
+		},
 	});
 
 	return proxy;
-};
+}

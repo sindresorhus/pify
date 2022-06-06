@@ -1,10 +1,9 @@
-/* eslint-disable promise/prefer-await-to-then */
-import util from 'util';
-import fs from 'fs';
-import stream from 'stream';
+import util from 'node:util';
+import fs from 'node:fs';
+import stream from 'node:stream';
 import test from 'ava';
 import pinkiePromise from 'pinkie-promise';
-import pify from '.';
+import pify from './index.js';
 
 const fixture = callback => setImmediate(() => {
 	callback(null, 'unicorn');
@@ -38,7 +37,7 @@ const fixture5 = () => 'rainbow';
 const fixtureModule = {
 	method1: fixture,
 	method2: fixture,
-	method3: fixture5
+	method3: fixture5,
 };
 
 function FixtureGrandparent() {}
@@ -120,8 +119,8 @@ test('module support - doesn\'t transform *Stream methods by default', t => {
 
 test('module support - preserves non-function members', t => {
 	const module = {
-		method: () => {},
-		nonMethod: 3
+		method() {},
+		nonMethod: 3,
 	};
 
 	t.deepEqual(Object.keys(module), Object.keys(pify(module)));
@@ -129,7 +128,7 @@ test('module support - preserves non-function members', t => {
 
 test('module support - transforms only members in options.include', t => {
 	const pModule = pify(fixtureModule, {
-		include: ['method1', 'method2']
+		include: ['method1', 'method2'],
 	});
 
 	t.is(typeof pModule.method1().then, 'function');
@@ -139,7 +138,7 @@ test('module support - transforms only members in options.include', t => {
 
 test('module support - doesn\'t transform members in options.exclude', t => {
 	const pModule = pify(fixtureModule, {
-		exclude: ['method3']
+		exclude: ['method3'],
 	});
 
 	t.is(typeof pModule.method1().then, 'function');
@@ -150,7 +149,7 @@ test('module support - doesn\'t transform members in options.exclude', t => {
 test('module support - options.include over options.exclude', t => {
 	const pModule = pify(fixtureModule, {
 		include: ['method1', 'method2'],
-		exclude: ['method2', 'method3']
+		exclude: ['method2', 'method3'],
 	});
 
 	t.is(typeof pModule.method1().then, 'function');
@@ -167,7 +166,7 @@ test('module support — function modules', t => {
 
 test('module support — function modules exclusion', t => {
 	const pModule = pify(fixture4, {
-		excludeMain: true
+		excludeMain: true,
 	});
 
 	t.is(typeof pModule.meow().then, 'function');
@@ -189,22 +188,22 @@ test('`errorFirst` option and `multiArgs`', async t => {
 
 	t.deepEqual(await pify(fixture, {
 		errorFirst: false,
-		multiArgs: true
+		multiArgs: true,
 	})('🦄', '🌈'), ['🦄', '🌈']);
 });
 
 test('class support - does not create a copy', async t => {
-	const obj = {
+	const object = {
 		x: 'foo',
 		y(callback) {
 			setImmediate(() => {
 				callback(null, this.x);
 			});
-		}
+		},
 	};
 
-	const pified = pify(obj);
-	obj.x = 'bar';
+	const pified = pify(object);
+	object.x = 'bar';
 
 	t.is(await pified.y(), 'bar');
 	t.is(pified.x, 'bar');
@@ -239,7 +238,7 @@ test('class support — respects inheritance order', async t => {
 test('class support - transforms only members in options.include, copies all', t => {
 	const instance = new FixtureClass();
 	const pInstance = pify(instance, {
-		include: ['parentMethod1']
+		include: ['parentMethod1'],
 	});
 
 	t.is(typeof pInstance.parentMethod1().then, 'function');
@@ -250,7 +249,7 @@ test('class support - transforms only members in options.include, copies all', t
 test('class support - doesn\'t transform members in options.exclude', t => {
 	const instance = new FixtureClass();
 	const pInstance = pify(instance, {
-		exclude: ['grandparentMethod1']
+		exclude: ['grandparentMethod1'],
 	});
 
 	t.not(typeof pInstance.grandparentMethod1(() => {}).then, 'function');
@@ -261,7 +260,7 @@ test('class support - options.include over options.exclude', t => {
 	const instance = new FixtureClass();
 	const pInstance = pify(instance, {
 		include: ['method1', 'parentMethod1'],
-		exclude: ['parentMethod1', 'grandparentMethod1']
+		exclude: ['parentMethod1', 'grandparentMethod1'],
 	});
 
 	t.is(typeof pInstance.method1().then, 'function');
@@ -280,7 +279,7 @@ test('method mutation', async t => {
 			setImmediate(() => {
 				callback(null, 'original');
 			});
-		}
+		},
 	};
 	const pified = pify(object);
 
@@ -296,9 +295,9 @@ test('symbol keys', async t => {
 		const symbol = Symbol('symbol');
 
 		const object = {
-			[symbol]: callback => {
+			[symbol](callback) {
 				setImmediate(callback);
-			}
+			},
 		};
 
 		const pified = pify(object);
@@ -313,11 +312,11 @@ test('symbol keys', async t => {
 test('non-writable non-configurable property', t => {
 	const object = {};
 	Object.defineProperty(object, 'prop', {
-		value: callback => {
+		value(callback) {
 			setImmediate(callback);
 		},
 		writable: false,
-		configurable: false
+		configurable: false,
 	});
 
 	const pified = pify(object);
@@ -343,7 +342,7 @@ test('do not break internal callback usage', async t => {
 		bar(...arguments_) {
 			const callback = arguments_.pop();
 			callback(null, 42);
-		}
+		},
 	};
 	t.is(await pify(object).foo(), 42);
 });
