@@ -5,6 +5,8 @@ type DropLast<T extends readonly unknown[]> = T extends [...(infer U), any]
 	? U
 	: [];
 
+type StringEndsWith<S, X extends string> = S extends `${infer _}${X}` ? true : false;
+
 interface Options<TIncludes extends readonly unknown[], TExcludes extends readonly unknown[], TMultiArgs extends boolean = false> {
 	multiArgs?: TMultiArgs;
 	include?: TIncludes;
@@ -24,7 +26,7 @@ type Promisify<TArgs extends readonly unknown[], TOptions extends InternalOption
 			TOptions extends { multiArgs: false }
 				? Last<Parameters<Last<TArgs>>>
 				: Parameters<Last<TArgs>>
-	  >
+		>
 	: never;
 
 type PromisifyModule<
@@ -33,13 +35,16 @@ type PromisifyModule<
 	TIncludes extends ReadonlyArray<keyof TModule>,
 	TExcludes extends ReadonlyArray<keyof TModule>
 > = {
-	[K in keyof TModule]:
-		TModule[K] extends (...args: infer TArgs) => any
-			? K extends TExcludes[number]
-			? TModule[K]
-			: Promisify<TArgs, InternalOptions<TIncludes, TExcludes, TMultiArgs>>
-			: TModule[K]
-}
+	[K in keyof TModule]: TModule[K] extends (...args: infer TArgs) => any
+		? K extends TIncludes[number]
+			? Promisify<TArgs, InternalOptions<TIncludes, TExcludes, TMultiArgs>>
+			: K extends TExcludes[number]
+				? TModule[K]
+				: StringEndsWith<K, 'Sync' | 'Stream'> extends true
+					? TModule[K]
+					: Promisify<TArgs, InternalOptions<TIncludes, TExcludes, TMultiArgs>>
+		: TModule[K];
+};
 
 declare function pify<
 	TArgs extends readonly unknown[],

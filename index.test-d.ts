@@ -100,7 +100,10 @@ expectType<Promise<string>>(pify(overloaded)(""));
 declare const fixtureModule: {
 	method1: (arg: string, cb: (error: Error, value: string) => void) => void;
 	method2: (arg: number, cb: (error: Error, value: number) => void) => void;
-	method3: (arg: string) => string
+	method3: (arg: string) => string;
+	methodSync: (arg: 'sync') => 'sync';
+	methodStream: (arg: 'stream') => 'stream';
+	callbackEndingInSync: (arg: 'sync', cb: (error: Error, value: 'sync') => void) => void;
 	prop: number;
 }
 
@@ -115,3 +118,20 @@ expectType<never>(pify(fixtureModule).method3());
 expectType<
 	(arg: string, cb: (error: Error, value: string) => void) => void
 >(pify(fixtureModule, { exclude: ['method1'] }).method1);
+
+// includes
+expectType<Promise<string>>(pify(fixtureModule, { include: ['method1'] }).method1(""));
+expectType<Promise<number>>(pify(fixtureModule, { include: ['method2'] }).method2(0));
+
+// excludes sync and stream method by default
+expectType<
+	(arg: 'sync') => 'sync'
+>(pify(fixtureModule, { exclude: ['method1'] }).methodSync);
+expectType<
+	(arg: 'stream') => 'stream'
+>(pify(fixtureModule, { exclude: ['method1'] }).methodStream);
+
+// include sync method
+expectType<
+	(arg: 'sync') => Promise<'sync'>
+>(pify(fixtureModule, { include: ['callbackEndingInSync'] }).callbackEndingInSync);
