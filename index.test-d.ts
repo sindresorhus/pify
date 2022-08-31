@@ -101,9 +101,11 @@ declare const fixtureModule: {
 	method1: (arg: string, cb: (error: Error, value: string) => void) => void;
 	method2: (arg: number, cb: (error: Error, value: number) => void) => void;
 	method3: (arg: string) => string
+	prop: number;
 }
 
 // module support
+expectType<number>(pify(fixtureModule).prop);
 expectType<Promise<string>>(pify(fixtureModule).method1(""));
 expectType<Promise<number>>(pify(fixtureModule).method2(0));
 // Same semantics as pify(fn)
