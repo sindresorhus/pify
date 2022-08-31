@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types */
+
 type Last<T extends readonly unknown[]> = T extends [...any, infer L]
 	? L
 	: never;
@@ -7,60 +9,61 @@ type DropLast<T extends readonly unknown[]> = T extends [...(infer U), any]
 
 type StringEndsWith<S, X extends string> = S extends `${infer _}${X}` ? true : false;
 
-interface Options<TIncludes extends readonly unknown[], TExcludes extends readonly unknown[], TMultiArgs extends boolean = false> {
-	multiArgs?: TMultiArgs;
-	include?: TIncludes;
-	exclude?: TExcludes;
+interface Options<Includes extends readonly unknown[], Excludes extends readonly unknown[], MultiArgs extends boolean = false> {
+	multiArgs?: MultiArgs;
+	include?: Includes;
+	exclude?: Excludes;
 }
 
-interface InternalOptions<TIncludes extends readonly unknown[], TExcludes extends readonly unknown[], TMultiArgs extends boolean = false> {
-	multiArgs: TMultiArgs;
-	include: TIncludes;
-	exclude: TExcludes;
+interface InternalOptions<Includes extends readonly unknown[], Excludes extends readonly unknown[], MultiArgs extends boolean = false> {
+	multiArgs: MultiArgs;
+	include: Includes;
+	exclude: Excludes;
 }
 
-type Promisify<TArgs extends readonly unknown[], TOptions extends InternalOptions<readonly unknown[], readonly unknown[], boolean>> = (
-	...args: DropLast<TArgs>
-) => Last<TArgs> extends (...args: any) => any
+type Promisify<Args extends readonly unknown[], GenericOptions extends InternalOptions<readonly unknown[], readonly unknown[], boolean>> = (
+	...args: DropLast<Args>
+) => Last<Args> extends (...args: any) => any
 	? Promise<
-			TOptions extends { multiArgs: false }
-				? Last<Parameters<Last<TArgs>>>
-				: Parameters<Last<TArgs>>
-		>
+	GenericOptions extends {multiArgs: false}
+		? Last<Parameters<Last<Args>>>
+		: Parameters<Last<Args>>
+	>
 	: never;
 
 type PromisifyModule<
-	TModule extends { [key: string]: any },
-	TMultiArgs extends boolean,
-	TIncludes extends ReadonlyArray<keyof TModule>,
-	TExcludes extends ReadonlyArray<keyof TModule>
+	Module extends Record<string, any>,
+	MultiArgs extends boolean,
+	Includes extends ReadonlyArray<keyof Module>,
+	Excludes extends ReadonlyArray<keyof Module>,
 > = {
-	[K in keyof TModule]: TModule[K] extends (...args: infer TArgs) => any
-		? K extends TIncludes[number]
-			? Promisify<TArgs, InternalOptions<TIncludes, TExcludes, TMultiArgs>>
-			: K extends TExcludes[number]
-				? TModule[K]
+	[K in keyof Module]: Module[K] extends (...args: infer Args) => any
+		? K extends Includes[number]
+			? Promisify<Args, InternalOptions<Includes, Excludes, MultiArgs>>
+			: K extends Excludes[number]
+				? Module[K]
 				: StringEndsWith<K, 'Sync' | 'Stream'> extends true
-					? TModule[K]
-					: Promisify<TArgs, InternalOptions<TIncludes, TExcludes, TMultiArgs>>
-		: TModule[K];
+					? Module[K]
+					: Promisify<Args, InternalOptions<Includes, Excludes, MultiArgs>>
+		: Module[K];
 };
 
 declare function pify<
-	TArgs extends readonly unknown[],
-	TMultiArgs extends boolean = false,
+	Args extends readonly unknown[],
+	MultiArgs extends boolean = false,
 >(
-	input: (...args: TArgs) => any,
-	options?: Options<[], [], TMultiArgs>
-): Promisify<TArgs, InternalOptions<[], [], TMultiArgs>>;
+	input: (...args: Args) => any,
+	options?: Options<[], [], MultiArgs>
+): Promisify<Args, InternalOptions<[], [], MultiArgs>>;
 declare function pify<
-	TModule extends { [key: string]: any },
-	TIncludes extends ReadonlyArray<keyof TModule> = [],
-	TExcludes extends ReadonlyArray<keyof TModule> = [],
-	TMultiArgs extends boolean = false,
+	Module extends Record<string, any>,
+	Includes extends ReadonlyArray<keyof Module> = [],
+	Excludes extends ReadonlyArray<keyof Module> = [],
+	MultiArgs extends boolean = false,
 >(
-	module: TModule,
-	options?: Options<TIncludes, TExcludes, TMultiArgs>
-): PromisifyModule<TModule, TMultiArgs, TIncludes, TExcludes>;
+	// eslint-disable-next-line unicorn/prefer-module
+	module: Module,
+	options?: Options<Includes, Excludes, MultiArgs>
+): PromisifyModule<Module, MultiArgs, Includes, Excludes>;
 
 export = pify;

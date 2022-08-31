@@ -1,49 +1,50 @@
-import { expectError, expectType, printType } from "tsd";
-import pify = require(".");
+import {expectError, expectType, printType} from 'tsd';
+import pify from '.';
 
 expectError(pify());
 expectError(pify(null));
 expectError(pify(undefined));
 expectError(pify(123));
-expectError(pify("abc"));
+expectError(pify('abc'));
 expectError(pify(null, {}));
 expectError(pify(undefined, {}));
 expectError(pify(123, {}));
-expectError(pify("abc", {}));
+expectError(pify('abc', {}));
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 expectType<never>(pify((v: number) => {})());
 // TODO: Figure out a way for this to return `never`
 expectType<Promise<never>>(pify(() => 'hello')());
 
-// callback with 0 additional params
-declare function fn0(fn: (val: number) => void): void;
+// Callback with 0 additional params
+declare function fn0(fn: (value: number) => void): void;
 expectType<Promise<number>>(pify(fn0)());
 
-// callback with 1 additional params
-declare function fn1(x: number, fn: (val: number) => void): void;
+// Callback with 1 additional params
+declare function fn1(x: number, fn: (value: number) => void): void;
 expectType<Promise<number>>(pify(fn1)(1));
 
-// callback with 2 additional params
-declare function fn2(x: number, y: number, fn: (val: number) => void): void;
+// Callback with 2 additional params
+declare function fn2(x: number, y: number, fn: (value: number) => void): void;
 expectType<Promise<number>>(pify(fn2)(1, 2));
 
-// generics
+// Generics
 
-declare function generic<T>(val: T, fn: (val: T) => void): void;
-declare const genericVal: "hello" | "goodbye";
-expectType<Promise<typeof genericVal>>(pify(generic)(genericVal));
+declare function generic<T>(value: T, fn: (value: T) => void): void;
+declare const genericValue: 'hello' | 'goodbye';
+expectType<Promise<typeof genericValue>>(pify(generic)(genericValue));
 
 declare function generic10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
-	val1: T1,
-	val2: T2,
-	val3: T3,
-	val4: T4,
-	val5: T5,
-	val6: T6,
-	val7: T7,
-	val8: T8,
-	val9: T9,
-	val10: T10,
+	value1: T1,
+	value2: T2,
+	value3: T3,
+	value4: T4,
+	value5: T5,
+	value6: T6,
+	value7: T7,
+	value8: T8,
+	value9: T9,
+	value10: T10,
 	cb: (value: {
 		val1: T1;
 		val2: T2;
@@ -58,44 +59,44 @@ declare function generic10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
 	}) => void
 ): void;
 expectType<
-	Promise<{
-		val1: 1;
-		val2: 2;
-		val3: 3;
-		val4: 4;
-		val5: 5;
-		val6: 6;
-		val7: 7;
-		val8: "8";
-		val9: 9;
-		val10: 10;
-	}>
->(pify(generic10)(1, 2, 3, 4, 5, 6, 7, "8", 9, 10));
+Promise<{
+	val1: 1;
+	val2: 2;
+	val3: 3;
+	val4: 4;
+	val5: 5;
+	val6: 6;
+	val7: 7;
+	val8: '8';
+	val9: 9;
+	val10: 10;
+}>
+>(pify(generic10)(1, 2, 3, 4, 5, 6, 7, '8', 9, 10));
 
-// multiArgs
+// MultiArgs
 declare function callback02(cb: (x: number, y: string) => void): void;
-declare function callback12(val: "a", cb: (x: number, y: string) => void): void;
+declare function callback12(value: 'a', cb: (x: number, y: string) => void): void;
 declare function callback22(
-	val1: "a",
-	val2: "b",
+	value1: 'a',
+	value2: 'b',
 	cb: (x: number, y: string) => void
 ): void;
 
-expectType<Promise<[number, string]>>(pify(callback02, { multiArgs: true })());
+expectType<Promise<[number, string]>>(pify(callback02, {multiArgs: true})());
 expectType<Promise<[number, string]>>(
-	pify(callback12, { multiArgs: true })("a")
+	pify(callback12, {multiArgs: true})('a'),
 );
 expectType<Promise<[number, string]>>(
-	pify(callback22, { multiArgs: true })("a", "b")
+	pify(callback22, {multiArgs: true})('a', 'b'),
 );
 
-// overloads
+// Overloads
 declare function overloaded(value: number, cb: (value: number) => void): void;
 declare function overloaded(value: string, cb: (value: string) => void): void;
 
 // Chooses last overload
 // See https://github.com/microsoft/TypeScript/issues/32164
-expectType<Promise<string>>(pify(overloaded)(""));
+expectType<Promise<string>>(pify(overloaded)(''));
 
 declare const fixtureModule: {
 	method1: (arg: string, cb: (error: Error, value: string) => void) => void;
@@ -105,33 +106,33 @@ declare const fixtureModule: {
 	methodStream: (arg: 'stream') => 'stream';
 	callbackEndingInSync: (arg: 'sync', cb: (error: Error, value: 'sync') => void) => void;
 	prop: number;
-}
+};
 
-// module support
+// Module support
 expectType<number>(pify(fixtureModule).prop);
-expectType<Promise<string>>(pify(fixtureModule).method1(""));
+expectType<Promise<string>>(pify(fixtureModule).method1(''));
 expectType<Promise<number>>(pify(fixtureModule).method2(0));
 // Same semantics as pify(fn)
 expectType<never>(pify(fixtureModule).method3());
 
-// excludes
+// Excludes
 expectType<
-	(arg: string, cb: (error: Error, value: string) => void) => void
->(pify(fixtureModule, { exclude: ['method1'] }).method1);
+(arg: string, cb: (error: Error, value: string) => void) => void
+>(pify(fixtureModule, {exclude: ['method1']}).method1);
 
-// includes
-expectType<Promise<string>>(pify(fixtureModule, { include: ['method1'] }).method1(""));
-expectType<Promise<number>>(pify(fixtureModule, { include: ['method2'] }).method2(0));
+// Includes
+expectType<Promise<string>>(pify(fixtureModule, {include: ['method1']}).method1(''));
+expectType<Promise<number>>(pify(fixtureModule, {include: ['method2']}).method2(0));
 
-// excludes sync and stream method by default
+// Excludes sync and stream method by default
 expectType<
-	(arg: 'sync') => 'sync'
->(pify(fixtureModule, { exclude: ['method1'] }).methodSync);
+(arg: 'sync') => 'sync'
+>(pify(fixtureModule, {exclude: ['method1']}).methodSync);
 expectType<
-	(arg: 'stream') => 'stream'
->(pify(fixtureModule, { exclude: ['method1'] }).methodStream);
+(arg: 'stream') => 'stream'
+>(pify(fixtureModule, {exclude: ['method1']}).methodStream);
 
-// include sync method
+// Include sync method
 expectType<
-	(arg: 'sync') => Promise<'sync'>
->(pify(fixtureModule, { include: ['callbackEndingInSync'] }).callbackEndingInSync);
+(arg: 'sync') => Promise<'sync'>
+>(pify(fixtureModule, {include: ['callbackEndingInSync']}).callbackEndingInSync);
