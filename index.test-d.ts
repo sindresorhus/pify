@@ -148,3 +148,14 @@ expectType<Promise<[number, string]>>(
 expectType<Promise<[number, string]>>(
 	pify(callback22, {multiArgs: true, errorFirst: false})('a', 'b'),
 );
+
+// Module function
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+function moduleFunction(_cb: (error: Error, value: number) => void): void {}
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+moduleFunction.method = function (_cb: (error: Error, value: string) => void): void {};
+
+expectType<Promise<number>>(pify(moduleFunction)());
+
+expectType<Promise<string>>(pify(moduleFunction, {excludeMain: true}).method());

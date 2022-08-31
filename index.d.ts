@@ -9,12 +9,13 @@ type DropLast<T extends readonly unknown[]> = T extends [...(infer U), any]
 
 type StringEndsWith<S, X extends string> = S extends `${infer _}${X}` ? true : false;
 
-interface Options<Includes extends readonly unknown[], Excludes extends readonly unknown[], MultiArgs extends boolean = false, ErrorFirst extends boolean = true> {
+interface Options<Includes extends readonly unknown[], Excludes extends readonly unknown[], MultiArgs extends boolean = false, ErrorFirst extends boolean = true, ExcludeMain extends boolean = false> {
 	multiArgs?: MultiArgs;
 	include?: Includes;
 	exclude?: Excludes;
 	errorFirst?: ErrorFirst;
 	promiseModule?: PromiseConstructor;
+	excludeMain?: ExcludeMain;
 }
 
 interface InternalOptions<Includes extends readonly unknown[], Excludes extends readonly unknown[], MultiArgs extends boolean = false, ErrorFirst extends boolean = true> {
@@ -73,7 +74,7 @@ declare function pify<
 >(
 	// eslint-disable-next-line unicorn/prefer-module
 	module: Module,
-	options?: Options<Includes, Excludes, MultiArgs, ErrorFirst>
+	options?: Options<Includes, Excludes, MultiArgs, ErrorFirst, true>
 ): PromisifyModule<Module, MultiArgs, ErrorFirst, Includes, Excludes>;
 
 export = pify;
