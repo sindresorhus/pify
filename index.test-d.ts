@@ -12,8 +12,8 @@ expectError(pify(123, {}));
 expectError(pify('abc', {}));
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-expectType<never>(pify((v: number) => {})());
-expectType<never>(pify(() => 'hello')());
+expectType<Promise<unknown>>(pify((v: number) => {})());
+expectType<Promise<unknown>>(pify(() => 'hello')());
 
 // Callback with 1 additional params
 declare function fn1(x: number, fn: (error: Error, value: number) => void): void;
@@ -108,7 +108,7 @@ expectType<number>(pify(fixtureModule).prop);
 expectType<Promise<string>>(pify(fixtureModule).method1(''));
 expectType<Promise<number>>(pify(fixtureModule).method2(0));
 // Same semantics as pify(fn)
-expectType<never>(pify(fixtureModule).method3());
+expectType<Promise<unknown>>(pify(fixtureModule).method3());
 
 // Excludes
 expectType<

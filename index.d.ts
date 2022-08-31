@@ -36,7 +36,8 @@ Last<Args> extends (...args: any) => any
 			? Last<Parameters<Last<Args>>>
 			: Parameters<Last<Args>>
 		>
-	: never;
+	// Functions without a callback will return a promise that never settles. We model this as Promise<unknown>
+	: Promise<unknown>;
 
 type PromisifyModule<
 	Module extends Record<string, any>,
