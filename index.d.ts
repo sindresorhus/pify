@@ -49,12 +49,13 @@ type PromisifyModule<
 };
 
 declare function pify<
+	FirstArg,
 	Args extends readonly unknown[],
 	MultiArgs extends boolean = false,
 >(
-	input: (...args: Args) => any,
+	input: (arg: FirstArg, ...args: Args) => any,
 	options?: Options<[], [], MultiArgs>
-): Promisify<Args, InternalOptions<[], [], MultiArgs>>;
+): Promisify<[FirstArg, ...Args], InternalOptions<[], [], MultiArgs>>;
 declare function pify<
 	Module extends Record<string, any>,
 	Includes extends ReadonlyArray<keyof Module> = [],

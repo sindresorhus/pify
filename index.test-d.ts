@@ -13,8 +13,7 @@ expectError(pify('abc', {}));
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 expectType<never>(pify((v: number) => {})());
-// TODO: Figure out a way for this to return `never`
-expectType<Promise<never>>(pify(() => 'hello')());
+expectType<never>(pify(() => 'hello')());
 
 // Callback with 0 additional params
 declare function fn0(fn: (value: number) => void): void;
