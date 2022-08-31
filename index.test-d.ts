@@ -1,4 +1,4 @@
-import { expectError, expectType } from "tsd";
+import { expectError, expectType, printType } from "tsd";
 import pify = require(".");
 
 expectError(pify());
@@ -12,6 +12,8 @@ expectError(pify(123, {}));
 expectError(pify("abc", {}));
 
 expectType<never>(pify((v: number) => {})());
+// TODO: Figure out a way for this to return `never`
+expectType<Promise<never>>(pify(() => 'hello')());
 
 // callback with 0 additional params
 declare function fn0(fn: (val: number) => void): void;
@@ -94,3 +96,15 @@ declare function overloaded(value: string, cb: (value: string) => void): void;
 // Chooses last overload
 // See https://github.com/microsoft/TypeScript/issues/32164
 expectType<Promise<string>>(pify(overloaded)(""));
+
+declare const fixtureModule: {
+	method1: (arg: string, cb: (error: Error, value: string) => void) => void;
+	method2: (arg: number, cb: (error: Error, value: number) => void) => void;
+	method3: (arg: string) => string
+}
+
+// module support
+expectType<Promise<string>>(pify(fixtureModule).method1(""));
+expectType<Promise<number>>(pify(fixtureModule).method2(0));
+// Same semantics as pify(fn)
+expectType<never>(pify(fixtureModule).method3());

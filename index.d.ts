@@ -19,6 +19,10 @@ type Promisify<TArgs extends readonly unknown[], TOptions extends Options> = (
 	  >
 	: never;
 
+type PromisifyModule<TModule extends { [key: string]: any }, TOptions extends Options> = {
+	[K in keyof TModule]: TModule[K] extends (...args: infer TArgs) => any ? Promisify<TArgs, TOptions> : never;
+}
+
 declare function pify<
 	TArgs extends readonly unknown[],
 	TOptions extends Options = { multiArgs: false }
@@ -26,5 +30,12 @@ declare function pify<
 	input: (...args: TArgs) => any,
 	options?: TOptions
 ): Promisify<TArgs, TOptions>;
+declare function pify<
+	TModule extends { [key: string]: any },
+	TOptions extends Options = { multiArgs: false }
+>(
+	module: TModule,
+	options?: TOptions
+): PromisifyModule<TModule, TOptions>;
 
 export = pify;
