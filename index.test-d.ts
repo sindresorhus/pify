@@ -16,16 +16,16 @@ expectType<never>(pify((v: number) => {})());
 expectType<never>(pify(() => 'hello')());
 
 // Callback with 1 additional params
-declare function fn1(x: number, fn: (err: Error, value: number) => void): void;
+declare function fn1(x: number, fn: (error: Error, value: number) => void): void;
 expectType<Promise<number>>(pify(fn1)(1));
 
 // Callback with 2 additional params
-declare function fn2(x: number, y: number, fn: (err: Error, value: number) => void): void;
+declare function fn2(x: number, y: number, fn: (error: Error, value: number) => void): void;
 expectType<Promise<number>>(pify(fn2)(1, 2));
 
 // Generics
 
-declare function generic<T>(value: T, fn: (err: Error, value: T) => void): void;
+declare function generic<T>(value: T, fn: (error: Error, value: T) => void): void;
 declare const genericValue: 'hello' | 'goodbye';
 expectType<Promise<typeof genericValue>>(pify(generic)(genericValue));
 
@@ -40,7 +40,7 @@ declare function generic10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
 	value8: T8,
 	value9: T9,
 	value10: T10,
-	cb: (err: Error, value: {
+	cb: (error: Error, value: {
 		val1: T1;
 		val2: T2;
 		val3: T3;
@@ -86,8 +86,8 @@ expectType<Promise<[number, string]>>(
 );
 
 // Overloads
-declare function overloaded(value: number, cb: (err: Error, value: number) => void): void;
-declare function overloaded(value: string, cb: (err: Error,value: string) => void): void;
+declare function overloaded(value: number, cb: (error: Error, value: number) => void): void;
+declare function overloaded(value: string, cb: (error: Error, value: string) => void): void;
 
 // Chooses last overload
 // See https://github.com/microsoft/TypeScript/issues/32164
@@ -132,15 +132,15 @@ expectType<
 (arg: 'sync') => Promise<'sync'>
 >(pify(fixtureModule, {include: ['callbackEndingInSync']}).callbackEndingInSync);
 
-// errorFirst option:
+// Option errorFirst:
 
 declare function fn0(fn: (value: number) => void): void;
 
 // Unknown as it returns a promise that always rejects because errorFirst = true
 expectType<Promise<unknown>>(pify(fn0)());
-expectType<Promise<unknown>>(pify(fn0, { errorFirst: true })());
+expectType<Promise<unknown>>(pify(fn0, {errorFirst: true})());
 
-expectType<Promise<number>>(pify(fn0, { errorFirst: false })());
+expectType<Promise<number>>(pify(fn0, {errorFirst: false})());
 expectType<Promise<[number, string]>>(pify(callback02, {multiArgs: true, errorFirst: true})());
 expectType<Promise<[number, string]>>(
 	pify(callback12, {multiArgs: true, errorFirst: false})('a'),

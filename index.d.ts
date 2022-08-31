@@ -24,18 +24,17 @@ interface InternalOptions<Includes extends readonly unknown[], Excludes extends 
 	errorFirst: ErrorFirst;
 }
 
-
 type Promisify<Args extends readonly unknown[], GenericOptions extends InternalOptions<readonly unknown[], readonly unknown[], boolean, boolean>> = (
 	...args: DropLast<Args>
 ) =>
 Last<Args> extends (...args: any) => any
-  // For single-argument functions when errorFirst: true we just return Promise<unknown> as it will always reject.
-	? Parameters<Last<Args>> extends [infer SingleCallbackArg] ? GenericOptions extends { errorFirst: true } ? Promise<unknown> : Promise<SingleCallbackArg>
-	: Promise<
-	GenericOptions extends {multiArgs: false}
-		? Last<Parameters<Last<Args>>>
-		: Parameters<Last<Args>>
-	>
+// For single-argument functions when errorFirst: true we just return Promise<unknown> as it will always reject.
+	? Parameters<Last<Args>> extends [infer SingleCallbackArg] ? GenericOptions extends {errorFirst: true} ? Promise<unknown> : Promise<SingleCallbackArg>
+		: Promise<
+		GenericOptions extends {multiArgs: false}
+			? Last<Parameters<Last<Args>>>
+			: Parameters<Last<Args>>
+		>
 	: never;
 
 type PromisifyModule<
