@@ -5,11 +5,19 @@ type DropLast<T extends readonly unknown[]> = T extends [...(infer U), any]
 	? U
 	: [];
 
-interface Options {
-	multiArgs: boolean;
+interface Options<TIncludes extends readonly unknown[], TExcludes extends readonly unknown[], TMultiArgs extends boolean = false> {
+	multiArgs?: TMultiArgs;
+	include?: TIncludes;
+	exclude?: TExcludes;
 }
 
-type Promisify<TArgs extends readonly unknown[], TOptions extends Options> = (
+interface InternalOptions<TIncludes extends readonly unknown[], TExcludes extends readonly unknown[], TMultiArgs extends boolean = false> {
+	multiArgs: TMultiArgs;
+	include: TIncludes;
+	exclude: TExcludes;
+}
+
+type Promisify<TArgs extends readonly unknown[], TOptions extends InternalOptions<readonly unknown[], readonly unknown[], boolean>> = (
 	...args: DropLast<TArgs>
 ) => Last<TArgs> extends (...args: any) => any
 	? Promise<
@@ -19,23 +27,35 @@ type Promisify<TArgs extends readonly unknown[], TOptions extends Options> = (
 	  >
 	: never;
 
-type PromisifyModule<TModule extends { [key: string]: any }, TOptions extends Options> = {
-	[K in keyof TModule]: TModule[K] extends (...args: infer TArgs) => any ? Promisify<TArgs, TOptions> : never;
+type PromisifyModule<
+	TModule extends { [key: string]: any },
+	TMultiArgs extends boolean,
+	TIncludes extends ReadonlyArray<keyof TModule>,
+	TExcludes extends ReadonlyArray<keyof TModule>
+> = {
+	[K in keyof TModule]:
+		TModule[K] extends (...args: infer TArgs) => any
+			? K extends TExcludes[number]
+			? TModule[K]
+			: Promisify<TArgs, InternalOptions<TIncludes, TExcludes, TMultiArgs>>
+			: TModule[K]
 }
 
 declare function pify<
 	TArgs extends readonly unknown[],
-	TOptions extends Options = { multiArgs: false }
+	TMultiArgs extends boolean = false,
 >(
 	input: (...args: TArgs) => any,
-	options?: TOptions
-): Promisify<TArgs, TOptions>;
+	options?: Options<[], [], TMultiArgs>
+): Promisify<TArgs, InternalOptions<[], [], TMultiArgs>>;
 declare function pify<
 	TModule extends { [key: string]: any },
-	TOptions extends Options = { multiArgs: false }
+	TIncludes extends ReadonlyArray<keyof TModule> = [],
+	TExcludes extends ReadonlyArray<keyof TModule> = [],
+	TMultiArgs extends boolean = false,
 >(
 	module: TModule,
-	options?: TOptions
-): PromisifyModule<TModule, TOptions>;
+	options?: Options<TIncludes, TExcludes, TMultiArgs>
+): PromisifyModule<TModule, TMultiArgs, TIncludes, TExcludes>;
 
 export = pify;

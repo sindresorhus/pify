@@ -108,3 +108,8 @@ expectType<Promise<string>>(pify(fixtureModule).method1(""));
 expectType<Promise<number>>(pify(fixtureModule).method2(0));
 // Same semantics as pify(fn)
 expectType<never>(pify(fixtureModule).method3());
+
+// excludes
+expectType<
+	(arg: string, cb: (error: Error, value: string) => void) => void
+>(pify(fixtureModule, { exclude: ['method1'] }).method1);
