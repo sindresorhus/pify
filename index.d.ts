@@ -14,6 +14,7 @@ interface Options<Includes extends readonly unknown[], Excludes extends readonly
 	include?: Includes;
 	exclude?: Excludes;
 	errorFirst?: ErrorFirst;
+	promiseModule?: PromiseConstructor;
 }
 
 interface InternalOptions<Includes extends readonly unknown[], Excludes extends readonly unknown[], MultiArgs extends boolean = false, ErrorFirst extends boolean = true> {
@@ -28,6 +29,7 @@ type Promisify<Args extends readonly unknown[], GenericOptions extends InternalO
 	...args: DropLast<Args>
 ) =>
 Last<Args> extends (...args: any) => any
+  // For single-argument functions when errorFirst: true we just return Promise<unknown> as it will always reject.
 	? Parameters<Last<Args>> extends [infer SingleCallbackArg] ? GenericOptions extends { errorFirst: true } ? Promise<unknown> : Promise<SingleCallbackArg>
 	: Promise<
 	GenericOptions extends {multiArgs: false}
