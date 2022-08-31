@@ -142,6 +142,22 @@ someClassPromisified.someFunction();
 const someFunction = pify(someClass.someFunction.bind(someClass));
 ```
 
+#### With TypeScript why is `pify` choosing the first function overload?
+
+If you're using TypeScript and your input has [function overloads](https://www.typescriptlang.org/docs/handbook/2/functions.html#function-overloads) then only the first overload will be chosen and promisified.
+
+If you need to choose a different overload consider using a type assertion eg.
+
+```ts
+function overloadedFunction(input: number, cb: (error: unknown, data: number => void): void
+function overloadedFunction(input: string, cb: (error: unknown, data: string) => void): void
+  /* ... */
+}
+
+const fn = pify(overloadedFunction as (input: string, cb: (error: unknown, data: string) => void) => void)
+// ^ ? (input: string) => Promise<string>
+```
+
 ## Related
 
 - [p-event](https://github.com/sindresorhus/p-event) - Promisify an event by waiting for it to be emitted
