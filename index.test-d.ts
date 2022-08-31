@@ -159,3 +159,13 @@ moduleFunction.method = function (_cb: (error: Error, value: string) => void): v
 expectType<Promise<number>>(pify(moduleFunction)());
 
 expectType<Promise<string>>(pify(moduleFunction, {excludeMain: true}).method());
+
+// Classes
+
+declare class MyClass {
+	method1(cb: (error: Error, value: string) => void): void;
+	method2(arg: number, cb: (error: Error, value: number) => void): void;
+}
+
+expectType<Promise<string>>(pify(new MyClass()).method1());
+expectType<Promise<number>>(pify(new MyClass()).method2(4));
