@@ -1,40 +1,41 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
-type Last<T extends readonly unknown[]> = T extends [...any, infer L]
+type LastArrayElement<T extends readonly unknown[]> = T extends [...any, infer L]
 	? L
 	: never;
-type DropLast<T extends readonly unknown[]> = T extends [...(infer U), any]
+
+type DropLastArrayElement<T extends readonly unknown[]> = T extends [...(infer U), unknown]
 	? U
 	: [];
 
 type StringEndsWith<S, X extends string> = S extends `${infer _}${X}` ? true : false;
 
-interface Options<Includes extends readonly unknown[], Excludes extends readonly unknown[], MultiArgs extends boolean = false, ErrorFirst extends boolean = true, ExcludeMain extends boolean = false> {
+type Options<Includes extends readonly unknown[], Excludes extends readonly unknown[], MultiArgs extends boolean = false, ErrorFirst extends boolean = true, ExcludeMain extends boolean = false> = {
 	multiArgs?: MultiArgs;
 	include?: Includes;
 	exclude?: Excludes;
 	errorFirst?: ErrorFirst;
 	promiseModule?: PromiseConstructor;
 	excludeMain?: ExcludeMain;
-}
+};
 
-interface InternalOptions<Includes extends readonly unknown[], Excludes extends readonly unknown[], MultiArgs extends boolean = false, ErrorFirst extends boolean = true> {
+type InternalOptions<Includes extends readonly unknown[], Excludes extends readonly unknown[], MultiArgs extends boolean = false, ErrorFirst extends boolean = true> = {
 	multiArgs: MultiArgs;
 	include: Includes;
 	exclude: Excludes;
 	errorFirst: ErrorFirst;
-}
+};
 
 type Promisify<Args extends readonly unknown[], GenericOptions extends InternalOptions<readonly unknown[], readonly unknown[], boolean, boolean>> = (
-	...args: DropLast<Args>
+	...args: DropLastArrayElement<Args>
 ) =>
-Last<Args> extends (...args: any) => any
+LastArrayElement<Args> extends (...arguments_: any) => any
 // For single-argument functions when errorFirst: true we just return Promise<unknown> as it will always reject.
-	? Parameters<Last<Args>> extends [infer SingleCallbackArg] ? GenericOptions extends {errorFirst: true} ? Promise<unknown> : Promise<SingleCallbackArg>
+	? Parameters<LastArrayElement<Args>> extends [infer SingleCallbackArg] ? GenericOptions extends {errorFirst: true} ? Promise<unknown> : Promise<SingleCallbackArg>
 		: Promise<
 		GenericOptions extends {multiArgs: false}
-			? Last<Parameters<Last<Args>>>
-			: Parameters<Last<Args>>
+			? LastArrayElement<Parameters<LastArrayElement<Args>>>
+			: Parameters<LastArrayElement<Args>>
 		>
 	// Functions without a callback will return a promise that never settles. We model this as Promise<unknown>
 	: Promise<unknown>;
@@ -46,27 +47,27 @@ type PromisifyModule<
 	Includes extends ReadonlyArray<keyof Module>,
 	Excludes extends ReadonlyArray<keyof Module>,
 > = {
-	[K in keyof Module]: Module[K] extends (...args: infer Args) => any
+	[K in keyof Module]: Module[K] extends (...arguments_: infer Arguments) => any
 		? K extends Includes[number]
-			? Promisify<Args, InternalOptions<Includes, Excludes, MultiArgs>>
+			? Promisify<Arguments, InternalOptions<Includes, Excludes, MultiArgs>>
 			: K extends Excludes[number]
 				? Module[K]
 				: StringEndsWith<K, 'Sync' | 'Stream'> extends true
 					? Module[K]
-					: Promisify<Args, InternalOptions<Includes, Excludes, MultiArgs, ErrorFirst>>
+					: Promisify<Arguments, InternalOptions<Includes, Excludes, MultiArgs, ErrorFirst>>
 		: Module[K];
 };
 
-declare function pify<
-	FirstArg,
-	Args extends readonly unknown[],
+export default function pify<
+	FirstArgument,
+	Arguments extends readonly unknown[],
 	MultiArgs extends boolean = false,
 	ErrorFirst extends boolean = true,
 >(
-	input: (arg: FirstArg, ...args: Args) => any,
+	input: (argument: FirstArgument, ...arguments_: Arguments) => any,
 	options?: Options<[], [], MultiArgs, ErrorFirst>
-): Promisify<[FirstArg, ...Args], InternalOptions<[], [], MultiArgs, ErrorFirst>>;
-declare function pify<
+): Promisify<[FirstArgument, ...Arguments], InternalOptions<[], [], MultiArgs, ErrorFirst>>;
+export default function pify<
 	Module extends Record<string, any>,
 	Includes extends ReadonlyArray<keyof Module> = [],
 	Excludes extends ReadonlyArray<keyof Module> = [],
@@ -77,5 +78,3 @@ declare function pify<
 	module: Module,
 	options?: Options<Includes, Excludes, MultiArgs, ErrorFirst, true>
 ): PromisifyModule<Module, MultiArgs, ErrorFirst, Includes, Excludes>;
-
-export = pify;

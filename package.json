@@ -12,6 +12,7 @@
 	},
 	"type": "module",
 	"exports": "./index.js",
+	"types": "./index.d.ts",
 	"engines": {
 		"node": ">=14.16"
 	},
@@ -44,11 +45,10 @@
 		"bluebird"
 	],
 	"devDependencies": {
-		"ava": "^4.3.0",
+		"ava": "^4.3.3",
 		"pinkie-promise": "^2.0.1",
 		"tsd": "^0.23.0",
-		"typescript": "^4.8.2",
 		"v8-natives": "^1.2.5",
-		"xo": "^0.49.0"
+		"xo": "^0.52.3"
 	}
 }

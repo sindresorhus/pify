@@ -142,19 +142,19 @@ someClassPromisified.someFunction();
 const someFunction = pify(someClass.someFunction.bind(someClass));
 ```
 
-#### With TypeScript why is `pify` choosing the last function overload?
+#### Why is `pify` choosing the last function overload when using it with TypeScript?
 
-If you're using TypeScript and your input has [function overloads](https://www.typescriptlang.org/docs/handbook/2/functions.html#function-overloads) then only the last overload will be chosen and promisified.
+If you're using TypeScript and your input has [function overloads](https://www.typescriptlang.org/docs/handbook/2/functions.html#function-overloads), then only the last overload will be chosen and promisified.
 
-If you need to choose a different overload consider using a type assertion eg.
+If you need to choose a different overload, consider using a type assertion:
 
 ```ts
-function overloadedFunction(input: number, cb: (error: unknown, data: number => void): void
-function overloadedFunction(input: string, cb: (error: unknown, data: string) => void): void
-  /* ... */
+function overloadedFunction(input: number, callback: (error: unknown, data: number => void): void
+function overloadedFunction(input: string, callback: (error: unknown, data: string) => void): void {
+	/* … */
 }
 
-const fn = pify(overloadedFunction as (input: number, cb: (error: unknown, data: number) => void) => void)
+const fn = pify(overloadedFunction as (input: number, callback: (error: unknown, data: number) => void) => void)
 // ^ ? (input: number) => Promise<number>
 ```
 
