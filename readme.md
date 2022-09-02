@@ -144,7 +144,7 @@ const someFunction = pify(someClass.someFunction.bind(someClass));
 
 #### Why is `pify` choosing the last function overload when using it with TypeScript?
 
-If you're using TypeScript and your input has [function overloads](https://www.typescriptlang.org/docs/handbook/2/functions.html#function-overloads), then only the last overload will be chosen and promisified.
+If you're using TypeScript and your input has [function overloads](https://www.typescriptlang.org/docs/handbook/2/functions.html#function-overloads), then only the last overload will be chosen and promisified. [This is a TypeScript limitation.](https://github.com/microsoft/TypeScript/issues/32164)
 
 If you need to choose a different overload, consider using a type assertion:
 
@@ -163,15 +163,3 @@ const fn = pify(overloadedFunction as (input: number, callback: (error: unknown,
 - [p-event](https://github.com/sindresorhus/p-event) - Promisify an event by waiting for it to be emitted
 - [p-map](https://github.com/sindresorhus/p-map) - Map over promises concurrently
 - [More…](https://github.com/sindresorhus/promise-fun)
-
----
-
-<div align="center">
-	<b>
-		<a href="https://tidelift.com/subscription/pkg/npm-pify?utm_source=npm-pify&utm_medium=referral&utm_campaign=readme">Get professional support for 'pify' with a Tidelift subscription</a>
-	</b>
-	<br>
-	<sub>
-		Tidelift helps make open source sustainable for maintainers while giving companies<br>assurances about security, maintenance, and licensing for their dependencies.
-	</sub>
-</div>
