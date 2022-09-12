@@ -149,13 +149,13 @@ If you're using TypeScript and your input has [function overloads](https://www.t
 If you need to choose a different overload, consider using a type assertion:
 
 ```ts
-function overloadedFunction(input: number, callback: (error: unknown, data: number => void): void
+function overloadedFunction(input: number, callback: (error: unknown, data: number) => void): void
 function overloadedFunction(input: string, callback: (error: unknown, data: string) => void): void {
 	/* … */
 }
 
 const fn = pify(overloadedFunction as (input: number, callback: (error: unknown, data: number) => void) => void)
-// ^ ? (input: number) => Promise<number>
+//    ^? (input: number) => Promise<number>
 ```
 
 ## Related
