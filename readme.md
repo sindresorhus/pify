@@ -132,14 +132,14 @@ import SomeClass from './some-class.js';
 const someInstance = new SomeClass();
 
 // ❌ `someFunction` can't access its class context.
-const someFunction = pify(someClass.someFunction);
+const someFunction = pify(someInstance.someFunction);
 
 // ✅ The whole class is promisified and the `someFunction` method is called on its class.
-const someClassPromisified = pify(someClass);
+const someClassPromisified = pify(someInstance);
 someClassPromisified.someFunction();
 
 // ✅ `someFunction` is bound to its class before being promisified.
-const someFunction = pify(someClass.someFunction.bind(someClass));
+const someBoundFunction = pify(someInstance.someFunction.bind(someInstance));
 ```
 
 #### Why is `pify` choosing the last function overload when using it with TypeScript?
