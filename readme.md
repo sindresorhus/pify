@@ -11,7 +11,7 @@ npm install pify
 ## Usage
 
 ```js
-import fs from 'fs';
+import fs from 'node:fs';
 import pify from 'pify';
 
 // Promisify a single function.
